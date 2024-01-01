@@ -1,0 +1,37 @@
+import 'package:app_jobdirect/firebase_options.dart';
+import 'package:app_jobdirect/screens/home/splash_screen.dart';
+import 'package:app_jobdirect/wrapper.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+
+
+void main() async {
+  // Initialize Firebase before runApp
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  runApp(MyApp());
+}
+
+
+class MyApp extends StatelessWidget {
+  MyApp({Key? key}) : super(key: key);
+
+
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: 'Job Finder App',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: SplashScreen(), // Display the splash screen initially
+        routes: {
+          '/wrapper': (context) => Wrapper(), // Replace DashboardScreen with your actual dashboard screen
+        },
+      );
+  }
+}
