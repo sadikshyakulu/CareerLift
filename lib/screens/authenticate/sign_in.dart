@@ -24,6 +24,8 @@ class _SignInState extends State<SignIn> {
   String password = '';
   String err = '';
 
+  bool obscurePassword = true; // State variable for password visibility
+
   @override
   void initState() {
     super.initState();
@@ -34,7 +36,7 @@ class _SignInState extends State<SignIn> {
 
     var size = MediaQuery.of(context).size;
 
-    Widget buildInputField(String hintText, bool obscure, void Function(String) onChanged) {
+    Widget buildInputField2(String hintText, void Function(String) onChanged) {
       return TextFormField(
         validator: (val) {
           if (val!.isEmpty) {
@@ -45,7 +47,7 @@ class _SignInState extends State<SignIn> {
           return null;
         },
         onChanged: onChanged,
-        obscureText: obscure,
+        obscureText: hintText == 'Password' ? obscurePassword : false,
         decoration: InputDecoration(
           fillColor: Colors.white,
           filled: true,
@@ -53,6 +55,20 @@ class _SignInState extends State<SignIn> {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
           ),
+          suffixIcon: hintText == 'Password' ? GestureDetector(
+            onTap: () {
+              setState(() {
+                obscurePassword = !obscurePassword;
+              });
+            },
+              child: Icon(
+              obscurePassword
+                  ? Icons.visibility_off
+                  : Icons.visibility,
+              color: Colors.black,
+            ),
+          )
+              : null,
         ),
       );
     }
@@ -163,11 +179,11 @@ class _SignInState extends State<SignIn> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget>[
                                       SizedBox(height:size.height/35),
-                                      buildInputField('Email', false, (val) {
+                                      buildInputField2('Email',  (val) {
                                         setState(() => email = val);
                                       }),
                                       SizedBox(height: size.height/35),
-                                      buildInputField('Password', true, (val) {
+                                      buildInputField2('Password', (val) {
                                         setState(() => password = val);
                                       }),
                                       SizedBox(height: size.height/35),

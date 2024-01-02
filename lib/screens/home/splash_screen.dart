@@ -79,16 +79,16 @@ class _SplashScreenState extends State<SplashScreen> {
               width: size.width,
               decoration: const BoxDecoration(
                 borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(100.0), // Adjust the radius as needed
-                  bottomRight: Radius.circular(100.0), // Adjust the radius as needed
+                  bottomLeft: Radius.circular(100.0),
+                  bottomRight: Radius.circular(100.0),
                 ),
-                // You can also set other properties of BoxDecoration here if needed
+                //  can also set other properties of BoxDecoration here if needed
                 gradient: LinearGradient(
-                  colors: [Color(0xFF429690), Color(0xFF2A7C76)], // Define your list of colors
-                  begin: Alignment.topCenter, // Define the starting point
-                  end: Alignment.bottomCenter, // Define the ending point
-                  stops: [0.0, 0.7], // Define stops for each color
-                  // You can also use 'stops' to define where each color should blend
+                  colors: [Color(0xFF429690), Color(0xFF2A7C76)], // list of colors
+                  begin: Alignment.topCenter, //  the starting point
+                  end: Alignment.bottomCenter, // the ending point
+                  stops: [0.0, 0.7], // stops for each color
+                  //  can also use 'stops' to define where each color should blend
                   // Stops, if not provided, distribute colors evenly across the gradient.
                 ),
               ),
@@ -101,10 +101,10 @@ class _SplashScreenState extends State<SplashScreen> {
                         alignment: Alignment.topLeft,
                         child: ClipRect(
 
-                          // child: Image.asset(
-                          //   "assets/Group 21.png",
-                          //   fit: BoxFit.cover,
-                          // ),
+                          child: Image.asset(
+                            "assets/Group 21.png",
+                            fit: BoxFit.cover,
+                          ),
 
                         ),
                       ),
@@ -121,10 +121,10 @@ class _SplashScreenState extends State<SplashScreen> {
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(20),
-                                // child: Image.asset(
-                                //   "assets/logo.png",
-                                //   fit: BoxFit.cover,
-                                // ),
+                                child: Image.asset(
+                                  "assets/logo.png",
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             )
                         ),
