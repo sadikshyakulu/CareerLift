@@ -11,7 +11,7 @@ class _forgotPasswordState extends State<ForgotPassword>{
   @override
   Widget build(BuildContext context){
     return Container(
-      child: Text("you forgot password  you are so dumb IQ 21 "),
+      child: Text("you forgot password  you so dumb IQ 21 "),
 
     );
   }
