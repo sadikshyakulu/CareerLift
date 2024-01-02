@@ -1,3 +1,4 @@
+import 'package:app_jobdirect/screens/authenticate/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:app_jobdirect/screens/home/dashboard.dart';
 
@@ -9,6 +10,6 @@ class Wrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-      return DashboardScreen();
+      return SignIn();
     }
   }

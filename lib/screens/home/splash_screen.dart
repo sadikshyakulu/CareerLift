@@ -13,7 +13,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-     //Simulate loading process
+    //splaSimulate loading process
     Future.delayed(Duration(seconds: 5), () {
 
 
@@ -50,16 +50,13 @@ class _SplashScreenState extends State<SplashScreen> {
   }
   PCLayout(){
     return Container(
-      child:Padding(
-        padding: const EdgeInsets.only(top:30),
-        child: Column(
-          children: [
-            groupMember("Sudan Tandukar"),
-            groupMember("Justin Shakya"),
-            groupMember("Rusar R.Pradhan")
+      child:Column(
+        children: [
+          groupMember("Sudan Tandukar"),
+          groupMember("Justin Shakya"),
+          groupMember("Rusar R.Pradhan")
 
-          ],
-        ),
+        ],
       ),
 
     );
@@ -72,6 +69,7 @@ class _SplashScreenState extends State<SplashScreen> {
     bool forAndroid = size.width < 450;
 
     return Scaffold(
+      backgroundColor: Color(0xFFFFFFFF),
       body: Column(
         children: [
           Container(
@@ -101,10 +99,10 @@ class _SplashScreenState extends State<SplashScreen> {
                         alignment: Alignment.topLeft,
                         child: ClipRect(
 
-                          // child: Image.asset(
-                          //   "assets/Group 21.png",
-                          //   fit: BoxFit.cover,
-                          // ),
+                          child: Image.asset(
+                            "assets/Group 21.png",
+                            fit: BoxFit.cover,
+                          ),
 
                         ),
                       ),
@@ -121,10 +119,10 @@ class _SplashScreenState extends State<SplashScreen> {
                               ),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(20),
-                                // child: Image.asset(
-                                //   "assets/logo.png",
-                                //   fit: BoxFit.cover,
-                                // ),
+                                child: Image.asset(
+                                  "assets/logo.png",
+                                  fit: BoxFit.cover,
+                                ),
                               ),
                             )
                         ),
@@ -138,13 +136,13 @@ class _SplashScreenState extends State<SplashScreen> {
               )
           ),
           SizedBox(
-            height:1
+              height:1
           ),
           Expanded(
             child: SingleChildScrollView(
               scrollDirection: Axis.vertical,
               child: Container(
-                height:350,
+                height:450,
                 width: size.width,
                 decoration: const BoxDecoration(
                   borderRadius: BorderRadius.only(
