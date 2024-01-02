@@ -1,3 +1,4 @@
+import 'package:app_jobdirect/screens/authenticate/forgot_password.dart';
 import 'package:app_jobdirect/screens/shared/loading_animation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -187,27 +188,51 @@ class _SignInState extends State<SignIn> {
                                         setState(() => password = val);
                                       }),
                                       SizedBox(height: size.height/35),
-                                      Center(
-                                        child: ElevatedButton(
-                                          onPressed: () async {
-                                            // Handle sign-in logic
-                                            if (_formKey.currentState?.validate() ?? false) {
-                                              setState(() => loading = true
-                                              );
-                                              // dynamic result = await _auth.signinWithEmailAndPassword(email, password);
-                                              // if (result == null) {
-                                              //   setState(() => err = 'Could not sign in with the credentials');
-                                              //   loading = false;
-                                              // }
-                                            }
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(30),
+                                      Row(
+                                        children: [
+                                          SizedBox(width: 30,),
+                                          Align(
+                                            alignment:Alignment.bottomLeft,
+                                            child: TextButton(
+                                              onPressed:(){
+                                                Navigator.push(context,MaterialPageRoute(builder: (context)=> ForgotPassword()));
+
+                                              },
+                                              child:Text(
+                                                "Forgot Password?",
+                                                style: GoogleFonts.poppins(
+                                                  color: Color(0xFFFFFFFF),
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.w600,
+                                                  decoration: TextDecoration.underline, decorationColor: Color(0xFFFFFFFF),
+                                                ),
+                                              ),
                                             ),
                                           ),
-                                          child: const Text('Sign In'),
-                                        ),
+                                          SizedBox(width: 10),
+                                          Center(
+                                            child: ElevatedButton(
+                                              onPressed: () async {
+                                                // Handle sign-in logic
+                                                if (_formKey.currentState?.validate() ?? false) {
+                                                  setState(() => loading = true
+                                                  );
+                                                  // dynamic result = await _auth.signinWithEmailAndPassword(email, password);
+                                                  // if (result == null) {
+                                                  //   setState(() => err = 'Could not sign in with the credentials');
+                                                  //   loading = false;
+                                                  // }
+                                                }
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius: BorderRadius.circular(30),
+                                                ),
+                                              ),
+                                              child: const Text('Sign In'),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                       SizedBox(
                                         height: size.height/35,
