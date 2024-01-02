@@ -1,12 +1,11 @@
 import 'package:app_jobdirect/screens/authenticate/sign_in.dart';
-import 'package:app_jobdirect/screens/authenticate/toggle_auth.dart';
 import 'package:app_jobdirect/screens/home/dashboard.dart';
 import 'package:app_jobdirect/screens/shared/loading_animation.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class Wrapper extends StatelessWidget {
-  const Wrapper({super.key});
+class UserState extends StatelessWidget {
+  const UserState({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +14,7 @@ class Wrapper extends StatelessWidget {
         builder:(ctx, usersnapshot) {
           if(usersnapshot.data == null) {
             print("not logged");
-            return ToggleAuth();
+            return SignIn();
           } else if(usersnapshot.hasData) {
             print("logged in");
             return DashboardScreen();

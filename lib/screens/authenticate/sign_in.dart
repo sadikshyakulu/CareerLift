@@ -225,7 +225,7 @@ class _SignInState extends State<SignIn> {
                                     onPressed: () {
                                       widget.toggleView!();
                                     },
-                                    icon: Icon(Icons.person)
+                                    icon: const Icon(Icons.person)
                                 ),
                                 Text('Register',style:GoogleFonts.poppins(color:Color(0xFF265A89),fontSize: 16,fontWeight: FontWeight.w600,decoration: TextDecoration.underline)),
                               ],

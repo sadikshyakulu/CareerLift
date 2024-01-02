@@ -218,10 +218,10 @@ class _RegisterState extends State<Register> {
                           Row(
                             children: [
                               IconButton(
-                                  onPressed: () {
-                                    widget.toggleView!();
-                                  },
-                                  icon: Icon(Icons.person)
+                                onPressed: () {
+                                  widget.toggleView!();
+                                },
+                                icon: Icon(Icons.person),
                               ),
                               Text('Sign In',style:GoogleFonts.poppins(color:Color(0xFF265A89),fontSize: 16,fontWeight: FontWeight.w600,decoration: TextDecoration.underline)),
                             ],

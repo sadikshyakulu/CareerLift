@@ -12,12 +12,12 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 
 class MyApp extends StatelessWidget {
-  MyApp({Key? key}) : super(key: key);
+  const MyApp({Key? key}) : super(key: key);
 
 
   // This widget is the root of your application.
@@ -30,7 +30,7 @@ class MyApp extends StatelessWidget {
         ),
         home: SplashScreen(), // Display the splash screen initially
         routes: {
-          '/wrapper': (context) => Wrapper(), // Replace DashboardScreen with your actual dashboard screen
+          '/wrapper': (context) => const Wrapper(), // Replace DashboardScreen with your actual dashboard screen
         },
       );
   }
