@@ -1,9 +1,12 @@
+import 'package:app_jobdirect/screens/authenticate/sign_in.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class ForgotPassword extends StatefulWidget {
-  const ForgotPassword ({Key? key}):super(key:key);
+
 
   @override
   State<ForgotPassword> createState()=>_forgotPasswordState();
@@ -12,6 +15,19 @@ class ForgotPassword extends StatefulWidget {
 class _forgotPasswordState extends State<ForgotPassword>{
 
   final TextEditingController _forgotPasswordController = TextEditingController(text:"");
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  void _forgotPassSubmit()async{
+    try{
+      await _auth.sendPasswordResetEmail(
+          email: _forgotPasswordController.text,);
+      Navigator.pushReplacement(context,MaterialPageRoute(builder:(_) => SignIn()));
+    }
+    catch (error){
+      Fluttertoast.showToast(msg: error.toString());
+    }
+
+  }
   @override
   Widget build(BuildContext context){
     var size = MediaQuery.of(context).size;
@@ -102,12 +118,15 @@ class _forgotPasswordState extends State<ForgotPassword>{
                                           padding: const EdgeInsets.only(top:300),
                                           child: ElevatedButton(
                                               onPressed: (){
+                                                _forgotPassSubmit();
 
                                               },
 
                                             style: ElevatedButton.styleFrom(
+                                              backgroundColor: Color(0xFF59C0CE), // Change the color here
                                               shape: RoundedRectangleBorder(
                                                 borderRadius: BorderRadius.circular(30),
+
                                               ),
                                             ),
                                               child: Text('Reset',style:GoogleFonts.poppins(fontSize: 28, )),
@@ -139,33 +158,33 @@ class _forgotPasswordState extends State<ForgotPassword>{
                                 ],
                               )
                           ),
+                          Padding(
+                            padding: const EdgeInsets.only(top:750),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text("Remember my Password",style:GoogleFonts.workSans(color:Colors.black,fontSize: 16,)),
+                                Row(
+                                  children: [
+                                    IconButton(
+                                        onPressed: () {
+                                          Navigator.pushReplacement(context,MaterialPageRoute(builder:(_) => SignIn()));
+                                        },
+                                        icon: const Icon(Icons.person)
+                                    ),
+                                    Text('Sign In',style:GoogleFonts.poppins(color:Color(0xFF265A89),fontSize: 16,fontWeight: FontWeight.w600,decoration: TextDecoration.underline)),
+                                  ],
+                                )
+
+                              ],
+                            ),
+                          )
 
 
                         ],
                       ),
-                      // Container(
-                      //   width: size.width,
-                      //   child: Row(
-                      //     mainAxisAlignment: MainAxisAlignment.center,
-                      //     children: [
-                      //       Text("Don’t have an account ?",style:GoogleFonts.workSans(color:Color(0xFF000000),fontSize: 16)),
-                      //       Row(
-                      //         children: [
-                      //           IconButton(
-                      //               onPressed: () {
-                      //                 widget.toggleView!();
-                      //               },
-                      //               icon: const Icon(Icons.person)
-                      //           ),
-                      //           Text('Register',style:GoogleFonts.poppins(color:Color(0xFF265A89),fontSize: 16,fontWeight: FontWeight.w600,decoration: TextDecoration.underline)),
-                      //         ],
-                      //       )
-                      //
-                      //     ],
-                      //   ),
-                      //
-                      // )
-                      //image logo
+
+
 
 
                     ]),

@@ -1,3 +1,4 @@
+import 'package:app_jobdirect/screens/widgets/bottom_nav_bar.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -17,6 +18,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     // User is authenticated, continue with your dashboard layout
     return Scaffold(
+      bottomNavigationBar: BottomNavbar(indexNum: 0,),
       appBar: AppBar(
         title: const Text('Job Finder Dashboard'),
         actions: <Widget>[

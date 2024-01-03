@@ -1,3 +1,4 @@
+import 'package:app_jobdirect/screens/authenticate/sign_in.dart';
 import 'package:app_jobdirect/screens/shared/loading_animation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -166,7 +167,17 @@ class _RegisterState extends State<Register> {
                               padding: const EdgeInsets.all(15),
                               decoration: BoxDecoration(
                                   color: Color(0xFF1B5C58),
-                                  borderRadius: BorderRadius.circular(30)),
+                                  borderRadius: BorderRadius.circular(30),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.5), // Shadow color
+                                    spreadRadius: 5, // Spread radius
+                                    blurRadius: 7, // Blur radius
+                                    offset: Offset(0, 4), // Offset/direction of shadow
+                                  ),
+                                ],
+
+                              ),
                               height: 350,
                               width: 354 ,
                               child: Form(
@@ -200,6 +211,7 @@ class _RegisterState extends State<Register> {
                                         style: ElevatedButton.styleFrom(
                                           shape: RoundedRectangleBorder(
                                             borderRadius: BorderRadius.circular(30),
+
                                           ),
                                         ),
                                         child: const Text('Sign Up'),
@@ -235,7 +247,7 @@ class _RegisterState extends State<Register> {
                             children: [
                               IconButton(
                                 onPressed: () {
-                                  widget.toggleView!();
+                                  Navigator.pushReplacement(context,MaterialPageRoute(builder:(_) => SignIn()));
                                 },
                                 icon: Icon(Icons.person),
                               ),
