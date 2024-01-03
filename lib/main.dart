@@ -1,6 +1,6 @@
 import 'package:app_jobdirect/firebase_options.dart';
 import 'package:app_jobdirect/screens/authenticate/register.dart';
-import 'package:app_jobdirect/screens/home/dashboard.dart';
+import 'package:app_jobdirect/screens/home/dashboard_screen.dart';
 import 'package:app_jobdirect/screens/home/splash_screen.dart';
 import 'package:app_jobdirect/wrapper.dart';
 import 'package:firebase_core/firebase_core.dart';
