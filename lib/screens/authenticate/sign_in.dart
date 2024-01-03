@@ -1,5 +1,7 @@
 import 'package:app_jobdirect/screens/authenticate/forgot_password.dart';
 import 'package:app_jobdirect/screens/shared/loading_animation.dart';
+import 'package:app_jobdirect/services/global_methods.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -18,6 +20,10 @@ class _SignInState extends State<SignIn> {
   // final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
   bool loading = false;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  final TextEditingController _emailController = TextEditingController(text: '');
+  final TextEditingController _passwordController = TextEditingController(text: '');
 
 
   // text field state
@@ -31,24 +37,37 @@ class _SignInState extends State<SignIn> {
   void initState() {
     super.initState();
   }
-  // void _signInSubmit()async{
-  //   final validData = _formKey.currentState!.validate();
-  //   if(validData){
-  //     setState(() {
-  //       loading=true;
-  //     });
-  //     try{
-  //       await _
-  //
-  //     }
-  //   }
-  // }
+  void _signInSubmit()async{
+    final validData = _formKey.currentState!.validate();
+    if(validData){
+      setState(() {
+        loading=true;
+      });
+      try{
+        await _auth.signInWithEmailAndPassword(
+          email: _emailController.text.trim().toLowerCase(),
+          password: _passwordController.text.trim(),
+        );
+        Navigator.canPop(context) ? Navigator.pop(context) : null;
+      } catch(err) {
+        setState(() {
+          loading = false;
+        });
+        GlobalMethods.showErrorDialog(error: err.toString(), ctx:context);
+        print(err);
+      }
+    }
+    setState(() {
+      loading = false;
+
+    });
+  }
   @override
   Widget build(BuildContext context) {
 
     var size = MediaQuery.of(context).size;
 
-    Widget buildInputField2(String hintText, void Function(String) onChanged) {
+    Widget buildInputField2(String hintText, void Function(String) onChanged, TextEditingController controltext) {
       return TextFormField(
         validator: (val) {
           if (val!.isEmpty) {
@@ -60,6 +79,7 @@ class _SignInState extends State<SignIn> {
         },
         onChanged: onChanged,
         obscureText: hintText == 'Password' ? obscurePassword : false,
+        controller: controltext,
         decoration: InputDecoration(
           fillColor: Colors.white,
           filled: true,
@@ -186,11 +206,11 @@ class _SignInState extends State<SignIn> {
                                       SizedBox(height:size.height/35),
                                       buildInputField2('Email',  (val) {
                                         setState(() => email = val);
-                                      }),
+                                      },  _emailController),
                                       SizedBox(height: size.height/35),
                                       buildInputField2('Password', (val) {
                                         setState(() => password = val);
-                                      }),
+                                      }, _passwordController),
                                       SizedBox(height: size.height/35),
                                       Row(
                                         children: [
@@ -216,18 +236,20 @@ class _SignInState extends State<SignIn> {
                                           SizedBox(width: 10),
                                           Center(
                                             child: ElevatedButton(
-                                              onPressed: () async {
-                                                // Handle sign-in logic
-                                                if (_formKey.currentState?.validate() ?? false) {
-                                                  setState(() => loading = true
-                                                  );
-                                                  // dynamic result = await _auth.signinWithEmailAndPassword(email, password);
-                                                  // if (result == null) {
-                                                  //   setState(() => err = 'Could not sign in with the credentials');
-                                                  //   loading = false;
-                                                  // }
-                                                }
-                                              },
+                                              onPressed: _signInSubmit,
+                                              //     () async {
+                                              //   // Handle sign-in logic
+                                              //   // if (_formKey.currentState?.validate() ?? false) {
+                                              //   //   setState(() => loading = true
+                                              //   //   );
+                                              //   //   // dynamic result = await _auth.signinWithEmailAndPassword(email, password);
+                                              //   //   // if (result == null) {
+                                              //   //   //   setState(() => err = 'Could not sign in with the credentials');
+                                              //   //   //   loading = false;
+                                              //   //   // }
+                                              //   // }
+                                              //
+                                              // },
                                               style: ElevatedButton.styleFrom(
                                                 shape: RoundedRectangleBorder(
                                                   borderRadius: BorderRadius.circular(30),
