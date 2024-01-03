@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:uuid/uuid.dart';
 
+import '../widgets/bottom_nav_bar.dart';
+
 class UploadJob extends StatefulWidget {
   const UploadJob({Key? key}) : super(key: key);
 
@@ -172,6 +174,7 @@ class _UploadJobState extends State<UploadJob> {
 
     // User is authenticated, continue with your dashboard layout
     return Scaffold(
+      bottomNavigationBar: BottomNavbar(indexNum: 1),
       appBar: AppBar(
         title: const Text('Upload jobs'),
       ),
@@ -280,7 +283,7 @@ class _UploadJobState extends State<UploadJob> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(13),
                         ),
-                        child: const Padding(
+                          child: const Padding(
                           padding: EdgeInsets.symmetric(vertical: 14),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
