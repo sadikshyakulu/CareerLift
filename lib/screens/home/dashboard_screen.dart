@@ -1,4 +1,4 @@
-import 'package:app_jobdirect/screens/widgets/bottom_nav_bar.dart';
+import 'package:app_jobdirect/screens/home/upload_job_screen.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -18,7 +18,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
     // User is authenticated, continue with your dashboard layout
     return Scaffold(
-      bottomNavigationBar: BottomNavbar(indexNum: 0,),
       appBar: AppBar(
         title: const Text('Job Finder Dashboard'),
         actions: <Widget>[
@@ -70,21 +69,26 @@ class _DashboardScreenState extends State<DashboardScreen> {
               // Close the sidebar
               Navigator.pop(context);
               // Navigate to the profile configuration page
-              // Navigator.push(
-              //   context,
-              // );
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => UploadJob(),
+                ),
+              );
             },
           ),
           ListTile(
-            title: const Text('Job Configuration'),
+            title: const Text('Upload Jobs'),
             onTap: () {
               // Close the sidebar
               Navigator.pop(context);
               // Add logic to navigate to the job configuration page if needed
-              // Navigator.push(
-              //   context,
-              //   //MaterialPageRoute(con),
-              // );
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => UploadJob(),
+                ),
+              );
 
             },
           ),
