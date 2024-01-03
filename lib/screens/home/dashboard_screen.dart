@@ -171,7 +171,7 @@ Widget _buildSidebar(BuildContext context) {
         ), // Add a divider for separation
 
         Padding(
-          padding: const EdgeInsets.only(left:5),
+          padding: const EdgeInsets.only(left: 5),
           child: Container(
             width: MediaQuery.of(context).size.width / 1.4,
             decoration: BoxDecoration(
@@ -182,12 +182,43 @@ Widget _buildSidebar(BuildContext context) {
               leading: const Icon(Icons.exit_to_app),
               title: const Text('Logout'),
               onTap: () async {
-                // Logout functionality
-                await _auth.signOut();
+                // Show the confirmation dialog
+                bool logoutConfirmed = await showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                      title: const Text('Confirm Logout'),
+                      content: const Text('Are you sure you want to logout?'),
+                      actions: <Widget>[
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(false); // Return false if user selects 'No'
+                          },
+                          child: const Text('No'),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(true); // Return true if user selects 'Yes'
+                          },
+                          child: const Text('Yes'),
+                        ),
+                      ],
+                    );
+                  },
+                );
+
+                // Check the response and logout if confirmed
+                if (logoutConfirmed == true) {
+                  // Logout functionality
+                  await _auth.signOut();
+                }
               },
             ),
           ),
         ),
+
+
+
       ],
     ),
   );

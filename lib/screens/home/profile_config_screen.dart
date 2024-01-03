@@ -16,7 +16,7 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
       appBar: AppBar(
         title: const Text('Upload jobs'),
       ),
-      body: Center(
+      body: const Center(
         child: Padding(
           padding: EdgeInsets.all(7.0),
           child: Card(
@@ -25,6 +25,7 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
 
                 ],
               ),
