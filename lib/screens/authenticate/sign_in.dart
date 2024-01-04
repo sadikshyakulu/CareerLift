@@ -1,4 +1,5 @@
 import 'package:app_jobdirect/screens/authenticate/forgot_password.dart';
+import 'package:app_jobdirect/screens/authenticate/register.dart';
 import 'package:app_jobdirect/screens/shared/loading_animation.dart';
 import 'package:app_jobdirect/services/global_methods.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -194,7 +195,17 @@ class _SignInState extends State<SignIn> {
                                 padding: const EdgeInsets.all(15),
                                 decoration: BoxDecoration(
                                     color: Color(0xFF1B5C58),
-                                    borderRadius: BorderRadius.circular(30)
+                                    borderRadius: BorderRadius.circular(30),
+                                    boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.5), // Shadow color
+                                      spreadRadius: 5, // Spread radius
+                                      blurRadius: 7, // Blur radius
+                                      offset: Offset(0, 4), // Offset/direction of shadow
+                                    ),
+                                  ],
+
+
                                 ),
                                 height: 350,
                                 width: 354 ,
@@ -280,27 +291,23 @@ class _SignInState extends State<SignIn> {
 
                         ],
                       ),
-                      Container(
-                        width: size.width,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text("Don’t have an account ?",style:GoogleFonts.workSans(color:Color(0xFF000000),fontSize: 16)),
-                            Row(
-                              children: [
-                                IconButton(
-                                    onPressed: () {
-                                      widget.toggleView!();
-                                    },
-                                    icon: const Icon(Icons.person)
-                                ),
-                                Text('Register',style:GoogleFonts.poppins(color:Color(0xFF265A89),fontSize: 16,fontWeight: FontWeight.w600,decoration: TextDecoration.underline)),
-                              ],
-                            )
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text("Don’t have an account ?",style:GoogleFonts.workSans(color:Color(0xFF000000),fontSize: 16)),
+                          Row(
+                            children: [
+                              IconButton(
+                                  onPressed: () {
+                                    Navigator.pushReplacement(context,MaterialPageRoute(builder:(_) => Register()));
+                                  },
+                                  icon: Icon(Icons.person)
+                              ),
+                              Text('Register',style:GoogleFonts.poppins(color:Color(0xFF265A89),fontSize: 16,fontWeight: FontWeight.w600,decoration: TextDecoration.underline)),
+                            ],
+                          )
 
-                          ],
-                        ),
-
+                        ],
                       )
                       //image logo
 

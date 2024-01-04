@@ -1,3 +1,4 @@
+import 'package:app_jobdirect/screens/widgets/bottom_nav_bar.dart';
 import 'package:flutter/material.dart';
 
 class ProfileConfiguration extends StatefulWidget {
@@ -11,10 +12,11 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: BottomNavbar(indexNum: 3),
       appBar: AppBar(
         title: const Text('Upload jobs'),
       ),
-      body: Center(
+      body: const Center(
         child: Padding(
           padding: EdgeInsets.all(7.0),
           child: Card(
@@ -23,6 +25,7 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
 
                 ],
               ),

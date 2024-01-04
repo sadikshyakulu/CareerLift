@@ -47,6 +47,7 @@ dependencies:
   cloud_firestore:
   firebase_storage:
   google_fonts:
+  curved_navigation_bar:
 
 dev_dependencies:
   flutter_test:
@@ -75,6 +76,7 @@ flutter:
     - assets/
     - assets/logo.png
     - assets/Group 21_large.png
+    - assets/small logo.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
