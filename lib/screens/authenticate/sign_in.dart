@@ -1,5 +1,6 @@
 import 'package:app_jobdirect/screens/authenticate/forgot_password.dart';
 import 'package:app_jobdirect/screens/authenticate/register.dart';
+import 'package:app_jobdirect/screens/home/dashboard_screen.dart';
 import 'package:app_jobdirect/screens/shared/loading_animation.dart';
 import 'package:app_jobdirect/services/global_methods.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -49,7 +50,12 @@ class _SignInState extends State<SignIn> {
           email: _emailController.text.trim().toLowerCase(),
           password: _passwordController.text.trim(),
         );
-        Navigator.canPop(context) ? Navigator.pop(context) : null;
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DashboardScreen(),
+          ),
+        );
       } catch(err) {
         setState(() {
           loading = false;
@@ -84,7 +90,8 @@ class _SignInState extends State<SignIn> {
         decoration: InputDecoration(
           fillColor: Colors.white,
           filled: true,
-          labelText: hintText, // Added labelText for clarity
+          labelText: hintText,
+          labelStyle: TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
           ),
@@ -112,7 +119,6 @@ class _SignInState extends State<SignIn> {
             width: size.width,
             height: size.height,
             child: SingleChildScrollView(
-
               child: Center(
                 child: Column(
                     children: [
@@ -207,8 +213,8 @@ class _SignInState extends State<SignIn> {
 
 
                                 ),
-                                height: 350,
-                                width: 354 ,
+                                height: size.height *0.5,
+                                width: size.width *0.85 ,
                                 child: Form(
                                   key: _formKey,
                                   child: Column(
@@ -310,8 +316,6 @@ class _SignInState extends State<SignIn> {
                         ],
                       )
                       //image logo
-
-
                     ]),
               ),
             )

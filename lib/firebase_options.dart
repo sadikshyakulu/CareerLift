@@ -50,19 +50,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAIpHAG253kwuMBEUXp9CZLKLv3gGbJvho',
-    appId: '1:207076359171:web:59e5f3f923366f805c6236',
-    messagingSenderId: '207076359171',
-    projectId: 'jobdirect-8e145',
-    authDomain: 'jobdirect-8e145.firebaseapp.com',
-    storageBucket: 'jobdirect-8e145.appspot.com',
+    apiKey: 'AIzaSyAusAFr4vfMKnc59WjW4d5PZ0JCnG2GyMQ',
+    appId: '1:806582947875:web:9f2c3550b784b9de2ce196',
+    messagingSenderId: '806582947875',
+    projectId: 'jobdirect-9a9c7',
+    authDomain: 'jobdirect-9a9c7.firebaseapp.com',
+    storageBucket: 'jobdirect-9a9c7.appspot.com',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyA_piSwUapNshJxRdDCbFhNq1IqOO1A1Kk',
-    appId: '1:207076359171:android:b56ec23a4b4d0faf5c6236',
-    messagingSenderId: '207076359171',
-    projectId: 'jobdirect-8e145',
-    storageBucket: 'jobdirect-8e145.appspot.com',
+    apiKey: 'AIzaSyDE-huIMuT4Xca-x36s7mZTqFC-CDeeLWA',
+    appId: '1:806582947875:android:f03f139d4a18f3642ce196',
+    messagingSenderId: '806582947875',
+    projectId: 'jobdirect-9a9c7',
+    storageBucket: 'jobdirect-9a9c7.appspot.com',
   );
 }

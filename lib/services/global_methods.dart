@@ -1,17 +1,12 @@
-import 'dart:js';
-
 import 'package:flutter/material.dart';
 
-
-
-//ahile etikai matra ho
 class GlobalMethods{
   static void showErrorDialog({required String error, required BuildContext ctx}) {
     showDialog(
         context: ctx,
         builder: (context){
           return AlertDialog(
-            title: Row(
+            title: const Row(
               children: [
                 Padding(
                     padding: EdgeInsets.all(8.0),
@@ -29,14 +24,14 @@ class GlobalMethods{
               ],
             ),
               content: Text(
-                '$error',
+                error,
                 ),
             actions: [
               TextButton(
                   onPressed: (){
                     Navigator.canPop(context) ? Navigator.pop(context) : null;
                   },
-                  child: Text(
+                  child: const Text(
                     "OK",
                     style: TextStyle(
                       color: Colors.red
@@ -44,10 +39,9 @@ class GlobalMethods{
                   )
               )
             ],
-              ),
-          )
+          );
         }
-    )
+    );
   }
 
 }

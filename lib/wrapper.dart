@@ -9,43 +9,43 @@ class Wrapper extends StatelessWidget {
   const Wrapper({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-            body: Center(
-              child: DashboardScreen(),
-            ),
-          );
-
-  }
-
   // Widget build(BuildContext context) {
-  //   return StreamBuilder(
-  //       stream: FirebaseAuth.instance.authStateChanges(),
-  //       builder:(ctx, usersnapshot) {
-  //         if(usersnapshot.data == null) {
-  //           print("not logged");
-  //           return ToggleAuth();
-  //         } else if(usersnapshot.hasData) {
-  //           print("logged in");
-  //           return DashboardScreen();
-  //         } else if(usersnapshot.hasError) {
-  //           return Scaffold(
-  //             body: Center(
-  //               child: Text("err"),
-  //             ),
-  //           );
-  //         } else if(usersnapshot.connectionState == ConnectionState.waiting) {
-  //           print("logged in");
-  //           return Loading();
-  //         }
-  //         return Scaffold(
+  //   return Scaffold(
   //           body: Center(
-  //             child: Text("somthing not right"),
+  //             child: ToggleAuth(),
   //           ),
   //         );
-  //       }
   //
-  //   );
   // }
+
+  Widget build(BuildContext context) {
+    return StreamBuilder(
+        stream: FirebaseAuth.instance.authStateChanges(),
+        builder:(ctx, usersnapshot) {
+          if(usersnapshot.data == null) {
+            print("not logged");
+            return ToggleAuth();
+          } else if(usersnapshot.hasData) {
+            print("logged in");
+            return DashboardScreen();
+          } else if(usersnapshot.hasError) {
+            return Scaffold(
+              body: Center(
+                child: Text("err"),
+              ),
+            );
+          } else if(usersnapshot.connectionState == ConnectionState.waiting) {
+            print("logged in");
+            return Loading();
+          }
+          return Scaffold(
+            body: Center(
+              child: Text("somthing not right"),
+            ),
+          );
+        }
+
+    );
+  }
 
 }
