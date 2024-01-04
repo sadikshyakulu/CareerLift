@@ -1,9 +1,12 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:app_jobdirect/screens/widgets/bottom_nav_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ProfileConfiguration extends StatefulWidget {
   const ProfileConfiguration({Key? key});
@@ -15,7 +18,9 @@ class ProfileConfiguration extends StatefulWidget {
 class _ProfileConfigurationState extends State<ProfileConfiguration> {
   final _profileKey = GlobalKey<FormState>();
   File? imageFile;
+
   bool obscurePassword = true;
+
   String email =  '';
   String password = '';
   String name='';
@@ -26,16 +31,97 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
 
   // Use TextEditingController for each TextFormField
   TextEditingController _nameController = TextEditingController();
-  TextEditingController _ageController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
   TextEditingController _addressController = TextEditingController();
   TextEditingController _contactController = TextEditingController();
   TextEditingController _educationController = TextEditingController();
-  TextEditingController _occupationController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
 
+  FocusNode _nameFocus=FocusNode();
   FocusNode _contactFocus=FocusNode();
   FocusNode _educationFocus=FocusNode();
   FocusNode _addressFocus=FocusNode();
-  FocusNode _ocupationFocus=FocusNode();
+  FocusNode _emailFocus=FocusNode();
+  FocusNode _passwordFocus=FocusNode();
+
+  void _showImage(){
+    showDialog(
+        context: context, builder: (context){
+          return AlertDialog(
+            title: Text('Please choose an option',style:GoogleFonts.inter(color:Colors.black,fontWeight:FontWeight.bold, ),),
+            content: Column(
+              mainAxisSize:MainAxisSize.min ,
+              children: [
+                InkWell(
+                  onTap: (){
+                    //create get from camera
+                    _getImageFromCamera();
+                  },
+                  child: Row(
+                    children: [
+                      const Padding(
+                          padding:EdgeInsets.all(7) ,
+                        child:
+                          Icon(
+                            Icons.camera_alt_sharp,
+                            color:Colors.black,
+
+                          )
+                      ),
+                      Text("Camera",style:GoogleFonts.inter(color:Colors.black,fontWeight:FontWeight.bold, ),),
+                    ],
+                  ),
+                ),
+                InkWell(
+                  onTap: (){
+                    //create get from gallery
+                    _getImageFromGallery();
+                  },
+                  child: Row(
+                    children: [
+                      const Padding(
+                          padding:EdgeInsets.all(7) ,
+                          child:
+                          Icon(
+                            Icons.image_aspect_ratio_sharp,
+                            color:Colors.black,
+
+                          )
+                      ),
+                      Text("Gallery",style:GoogleFonts.inter(color:Colors.black,fontWeight:FontWeight.bold, ),),
+                    ],
+                  ),
+                )
+              ],
+
+            ),
+
+          );
+    },
+    );
+  }
+  void _getImageFromCamera()async{
+    XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
+    _cropImage(pickedFile!.path);
+    Navigator.pop(context);
+  }
+  void _getImageFromGallery()async{
+    XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    _cropImage(pickedFile!.path);
+    Navigator.pop(context);
+  }
+
+  void _cropImage(filePath)async{
+    CroppedFile? cropImage = await ImageCropper().cropImage(
+        sourcePath: filePath , maxHeight: 1080 ,maxWidth: 1080
+    );
+    if( cropImage!=null){
+      setState(() {
+        imageFile = File( cropImage.path);
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +151,7 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
         validator: validator,
         decoration: InputDecoration(
           filled: true,
-          fillColor: Color(0xFFD9D9D9),
+          fillColor: const Color(0xFFD9D9D9),
           labelText: labelText,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
@@ -73,7 +159,8 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
         ),
       );
     }
-    Widget buildInputField2(String hintText, void Function(String) onChanged) {
+    Widget buildInputField2(String hintText, void Function(String) onChanged,{FocusNode? focusNode,
+        FocusNode? nextFocusNode,} ) {
       return TextFormField(
         validator: (val) {
           if (val!.isEmpty) {
@@ -83,10 +170,19 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
           }
           return null;
         },
+        focusNode: focusNode,
+        onEditingComplete: () {
+          if (nextFocusNode != null) {
+            FocusScope.of(context).requestFocus(nextFocusNode);
+          } else {
+            // Hide keyboard if next focus node is not available
+            FocusScope.of(context).unfocus();
+          }
+        },
         onChanged: onChanged,
         obscureText: hintText == 'Password' ? obscurePassword : false,
         decoration: InputDecoration(
-          fillColor: Color(0xFFD9D9D9),
+          fillColor: const Color(0xFFD9D9D9),
           filled: true,
           labelText: hintText, // Added labelText for clarity
           border: OutlineInputBorder(
@@ -111,20 +207,20 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
     }
 
     return Scaffold(
-      backgroundColor: Color(0xFF2D7F79),
+      backgroundColor: const Color(0xFF2D7F79),
       bottomNavigationBar: BottomNavbar(indexNum: 3),
       appBar: AppBar(
         backgroundColor: const Color(0xFF2D7F79),
         title: Center(child: Text('Edit Profile',style:GoogleFonts.poppins(color:Colors.white,fontSize: 32,fontWeight: FontWeight.w600, ))),
       ),
       body: Padding(
-        padding: EdgeInsets.all(7.0),
+        padding: const EdgeInsets.all(7.0),
         child: SingleChildScrollView(
           child: Column(
 
             children: [
               Padding(
-                padding: EdgeInsets.only(top:9),
+                padding: const EdgeInsets.only(top:9),
                 child: Form(
                   key: _profileKey,
                   child: Column(
@@ -133,9 +229,11 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
                       GestureDetector(
                         onTap: () {
                           // Create show image dialog
+                          _showImage();
+
                         },
                         child: Padding(
-                          padding: EdgeInsets.only(top:9),
+                          padding: const EdgeInsets.only(top:9),
                           child: Container(
                             width: size.width * 0.4,
                             height: size.width * 0.4, // Set a square container
@@ -148,15 +246,16 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
                               child: imageFile == null
                                   ? Image.asset(
                                 'assets/editPerson.png',
-                                fit: BoxFit.fill,
-                              )
+                               fit: BoxFit.fill,
+                               )
+
                                   : Image.file(
                                 imageFile!,
                                 fit: BoxFit.fill,
                               ),
                             ),
                           ),
-                          
+
                         ),
                       ),
 
@@ -171,7 +270,8 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
                 labelText: 'Name',
                 keyboardType: TextInputType.name,
                 textInputAction: TextInputAction.next,
-                focusNode: _educationFocus,
+                focusNode: _nameFocus,
+                nextFocusNode: _emailFocus,
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'This field is missing';
@@ -180,11 +280,13 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
                 },
               ),
               SizedBox(height:size.height/35),
-              buildInputField2('Email',  (val) {
+              buildInputField2('Email',focusNode: _emailFocus,
+                  nextFocusNode: _passwordFocus,  (val) {
                 setState(() => email = val);
               }),
               SizedBox(height: size.height/35),
-              buildInputField2('Password', (val) {
+              buildInputField2('Password',focusNode: _passwordFocus,
+                  nextFocusNode: _contactFocus, (val) {
                 setState(() => password = val);
               }),
               SizedBox(height: size.height/35),
@@ -194,6 +296,7 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
                 keyboardType: TextInputType.phone,
                 textInputAction: TextInputAction.next,
                 focusNode: _contactFocus,
+                nextFocusNode:_educationFocus ,
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'This field is missing';
@@ -207,8 +310,9 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
                 labelText: 'Education',
                 keyboardType: TextInputType.text,
                 textInputAction: TextInputAction.next,
-                focusNode: _addressFocus,
-                validator: (value) {
+                focusNode: _educationFocus,
+                nextFocusNode:_addressFocus,
+                  validator: (value) {
                   if (value!.isEmpty) {
                     return 'This field is missing';
                   }
@@ -218,16 +322,42 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
               SizedBox(height: size.height/35),
               buildTextFormField(
                 controller: _addressController,
-                labelText: 'Phone Number',
+                labelText: 'Address',
                 keyboardType: TextInputType.text,
                 textInputAction: TextInputAction.next,
-                focusNode: _ocupationFocus,
+                focusNode: _addressFocus,
                 validator: (value) {
                   if (value!.isEmpty) {
                     return 'This field is missing';
                   }
                   return null;
                 },
+              ),
+              SizedBox(height: size.height/30),
+              Center(
+                child: ElevatedButton(
+                  onPressed: (){},
+                  //     () async {
+                  //   // Handle sign-in logic
+                  //   // if (_formKey.currentState?.validate() ?? false) {
+                  //   //   setState(() => loading = true
+                  //   //   );
+                  //   //   // dynamic result = await _auth.signinWithEmailAndPassword(email, password);
+                  //   //   // if (result == null) {
+                  //   //   //   setState(() => err = 'Could not sign in with the credentials');
+                  //   //   //   loading = false;
+                  //   //   // }
+                  //   // }
+                  //
+                  // },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  child:  Text('Save',style:GoogleFonts.inter(color:Colors.black,fontSize: 30,fontWeight:FontWeight.bold, ),),
+                ),
               ),
             ],
           ),
