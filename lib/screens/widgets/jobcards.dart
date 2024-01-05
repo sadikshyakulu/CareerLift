@@ -5,12 +5,13 @@ class JobCards extends StatefulWidget {
 
   final String jobTitle;
   final String jobDescription;
-  final String jobCategory ;
+  final String jobId ;
   final String userImage;
   final String companyName;
   final String recruitment ;
   final String email;
   final String location;
+  final String jobDeadline;
 
   const JobCards(
       {
@@ -18,12 +19,13 @@ class JobCards extends StatefulWidget {
 
         required this.jobTitle,
         required this.jobDescription,
-        required this.jobCategory,
+        required this.jobId,
         required this.userImage,
         required this.companyName,
         required this.recruitment,
         required this.email,
-        required this.location});
+        required this.location,
+        required this.jobDeadline});
 
 
 
@@ -65,6 +67,14 @@ class _JobCardsState extends State<JobCards> {
           children: [
             Text(
               widget.jobTitle,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.poppins(color:Colors.black,fontSize: 20,fontWeight: FontWeight.bold,),
+
+
+            ),
+            Text(
+              widget.jobDeadline,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.poppins(color:Colors.black,fontSize: 20,fontWeight: FontWeight.bold,),
