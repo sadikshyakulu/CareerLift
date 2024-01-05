@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class JobTile extends StatelessWidget {
+
+
   // const JobTile({Key? key, required this.jobsList, required this.onTileTap}) : super(key: key);
   //
   // final JobModel jobsList;
@@ -8,12 +10,12 @@ class JobTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
+    return const InkWell(
       // onTap: onTileTap,
       child: Padding(
-        padding: const EdgeInsets.only(top: 8.0),
+        padding: EdgeInsets.only(top: 8.0),
         child: Card(
-          margin: const EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0),
+          margin: EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0),
           child: ListTile(
             leading: CircleAvatar(
               radius: 25.0,

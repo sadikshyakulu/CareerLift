@@ -1,4 +1,9 @@
+import 'dart:ui_web';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
+import '../widgets/job_list_widget.dart';
 
 class JobScreen extends StatefulWidget {
   const JobScreen({super.key});
@@ -8,8 +13,78 @@ class JobScreen extends StatefulWidget {
 }
 
 class _JobScreenState extends State<JobScreen> {
+  String? _jobCategoryFilter;
+
+  TextEditingController _jobCategoryController = TextEditingController(text: "Select the category");
+
   @override
   Widget build(BuildContext context) {
-    return Container();
+    var size = MediaQuery.of(context).size;
+    return Container(
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            width: size.width * 0.95,
+            child: DropdownButtonFormField<String>(
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+              ),
+              value: _jobCategoryController.text.isNotEmpty
+                  ? JobListWidget.jobCategoryList.contains(_jobCategoryController.text)
+                  ? _jobCategoryController.text
+                  : null
+                  : null,
+              onChanged: (String? newValue) {
+                setState(() {
+                  _jobCategoryFilter = newValue ?? "";
+                });
+              },
+              items: JobListWidget.jobCategoryList
+                  .map<DropdownMenuItem<String>>((String value) {
+                return DropdownMenuItem<String>(
+                  value: value,
+                  child: Text(value),
+                );
+              }).toList(),
+            ),
+          ),
+          Scaffold(
+            body:StreamBuilder<QuerySnapshot<Map<String,dynamic>>>(
+              stream: FirebaseFirestore.instance.
+              collection("jobs")
+                  .where("jobCategory",isEqualTo: _jobCategoryFilter)
+                  .where('recruitment',isEqualTo: true)
+                  .orderBy('created',descending: false)
+                  .snapshots(),
+              builder:(context,AsyncSnapshot snapshot){
+                if (snapshot.connectionState == ConnectionState.waiting){
+                  return const Center(child: CircularProgressIndicator(),);
+
+                }
+                else if (snapshot.connectionState == ConnectionState.active)
+                  {
+                    if(snapshot.data?.docs.isNotEmpty==true){
+                      return ListView.builder(
+                        itemCount:  snapshot.data?. docs.Length,
+                        itemBuilder: (BuildContext context, int index ){
+                          return JobWidget(
+                            jobTitle: snapshot.data?.docs[index]['Job Title'],
+
+
+                          );
+                        },
+
+                      );
+
+                    }
+                  }
+              }
+            ),
+          ),
+        ],
+      ),
+    );
+
   }
 }

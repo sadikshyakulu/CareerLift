@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ProfileConfiguration extends StatefulWidget {
   const ProfileConfiguration({Key? key});
@@ -111,16 +112,26 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
     Navigator.pop(context);
   }
 
-  void _cropImage(filePath)async{
-    CroppedFile? cropImage = await ImageCropper().cropImage(
-        sourcePath: filePath , maxHeight: 1080 ,maxWidth: 1080
-    );
-    if( cropImage!=null){
-      setState(() {
-        imageFile = File( cropImage.path);
-      });
+  void _cropImage(filePath) async {
+    try {
+      CroppedFile? cropImage = await ImageCropper().cropImage(
+        sourcePath: filePath,
+        maxHeight: 1080,
+        maxWidth: 1080,
+      );
+
+      if (cropImage != null) {
+        setState(() {
+          imageFile = File(cropImage.path);
+        });
+      }
+    } catch (e) {
+      print('Error while cropping image: $e');
+      // Implement proper error handling, such as showing an error message
     }
   }
+
+
 
 
   @override
@@ -227,11 +238,10 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
 
                     children: [
                       GestureDetector(
-                        onTap: () {
-                          // Create show image dialog
+                        onTap: () async {
                           _showImage();
-
                         },
+
                         child: Padding(
                           padding: const EdgeInsets.only(top:9),
                           child: Container(
@@ -242,7 +252,8 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
                               color: Colors.white,
                               shape: BoxShape.circle,
                             ),
-                            child: ClipOval(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(100.0),
                               child: imageFile == null
                                   ? Image.asset(
                                 'assets/editPerson.png',

@@ -146,27 +146,30 @@ class _UploadJobState extends State<UploadJob> {
   }
 
   void _pickDateDialog() async {
-    picked == await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime.now().subtract(
-            const Duration(days:0)
-        ),
-        lastDate: DateTime(2100),
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime.now().subtract(const Duration(days: 0)),
+      lastDate: DateTime(2100),
     );
-    if(picked != null){
+
+    if (pickedDate != null) {
       setState(() {
-        _jobDeadlineController.text = "${picked!.year} - ${picked!.month} - ${picked!.day}";
-        deadlineDateTimeStamp = Timestamp.fromMicrosecondsSinceEpoch(picked!.microsecondsSinceEpoch);
+        _jobDeadlineController.text =
+        "${pickedDate.year} - ${pickedDate.month} - ${pickedDate.day}";
+        deadlineDateTimeStamp = Timestamp.fromMicrosecondsSinceEpoch(
+            pickedDate.microsecondsSinceEpoch);
       });
+
       await Fluttertoast.showToast(
-          msg: 'Task is uploaded',
-          toastLength: Toast.LENGTH_LONG,
-          backgroundColor: Colors.black26,
-          fontSize: 24,
+        msg: 'Task is uploaded',
+        toastLength: Toast.LENGTH_LONG,
+        backgroundColor: Colors.black26,
+        fontSize: 24,
       );
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
