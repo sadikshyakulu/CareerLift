@@ -117,7 +117,7 @@ class _UploadJobState extends State<UploadJob> {
           'createdAt': Timestamp.now(),
           'name': name,
           'userImage': userImage,
-          'Location': location,
+          'address': address,
           'applicants': 0,
         });
         _jobTitleController.clear();
@@ -168,6 +168,24 @@ class _UploadJobState extends State<UploadJob> {
         fontSize: 24,
       );
     }
+  }
+
+void getData()async{
+    final DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection("Users").doc(FirebaseAuth.instance.currentUser!.uid)
+        .get();
+    setState(() {
+      name = userDoc.get("name");
+      userImage=userDoc.get("userImage");
+      address=userDoc.get("address");
+
+    });
+}
+
+@override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getData();
   }
 
 

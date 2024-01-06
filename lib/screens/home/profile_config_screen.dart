@@ -252,8 +252,7 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
                               color: Colors.white,
                               shape: BoxShape.circle,
                             ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(100.0),
+                            child: ClipOval(
                               child: imageFile == null
                                   ? Image.asset(
                                 'assets/editPerson.png',
