@@ -30,7 +30,8 @@ class MyApp extends StatelessWidget {
         theme: ThemeData(
           primarySwatch: Colors.blue,
         ),
-        home: SplashScreen(), // Display the splash screen initially
+        home: SplashScreen(),
+      debugShowCheckedModeBanner: false,// Display the splash screen initially
         routes: {
           '/wrapper': (context) => const Wrapper(), // Replace DashboardScreen with your actual dashboard screen
         },
