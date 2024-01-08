@@ -1,6 +1,7 @@
 import 'package:app_jobdirect/providers/user_provider.dart';
 import 'package:app_jobdirect/screens/authenticate/toggle_auth.dart';
 import 'package:app_jobdirect/screens/home/profile_config_screen.dart';
+import 'package:app_jobdirect/screens/home/terms_conditions_screen.dart';
 import 'package:app_jobdirect/screens/widgets/bottom_nav_bar.dart';
 import 'package:app_jobdirect/utility/user_utility.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -149,9 +150,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 borderRadius: BorderRadius.circular(10.0), // Set circular border radius
               ),
               child: ListTile(
-                title: const Text('Applied Jobs'),
+                title: const Text('Terms and Conditions'),
                 onTap: () {
                   Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => TermsConditionsPage()),
+                  );
                   // Add logic for handling Applied Jobs screen navigation
                 },
               ),
