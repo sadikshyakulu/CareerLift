@@ -119,7 +119,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.only(bottom: 8.0),
+                padding: const EdgeInsets.only(bottom: 30.0),
                 child: Center(
                   child: Text(
                     "Loading ..........",
