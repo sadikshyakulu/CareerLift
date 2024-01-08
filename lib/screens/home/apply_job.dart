@@ -151,6 +151,10 @@ class _ApplyJobState extends State<ApplyJob> {
       'applicants':applicants+1
     });
     Navigator.pop(context);
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (_) => const DashboardScreen()),
+    );
   }
 
   @override
