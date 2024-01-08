@@ -51,7 +51,7 @@ class TermsConditionsPage extends StatelessWidget {
               ),
               SizedBox(height: 8),
               Text(
-                'If you have any questions about these terms, please contact us at support@example.com.',
+                'If you have any questions about these terms, please contact us at blabla@blabla.com.',
                 style: TextStyle(fontSize: 16),
               ),
             ],

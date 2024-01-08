@@ -37,9 +37,7 @@ class _SplashScreenState extends State<SplashScreen> {
         padding: const EdgeInsets.only(top:70),
         child: Column(
           children: [
-            groupMember("Sudan Tandukar"),
-            groupMember("Justin Shakya"),
-            groupMember("Rusar R.Pradhan")
+
 
           ],
         ),
@@ -54,9 +52,6 @@ class _SplashScreenState extends State<SplashScreen> {
         padding: const EdgeInsets.only(top:30),
         child: Column(
           children: [
-            groupMember("Sudan Tandukar"),
-            groupMember("Justin Shakya"),
-            groupMember("Rusar R.Pradhan")
 
           ],
         ),

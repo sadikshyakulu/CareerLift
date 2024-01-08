@@ -35,6 +35,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String? userEducation;
   String? userAddress;
 
+
   Future<void> fetchUserDetails() async {
     final User? user = _auth.currentUser;
 
@@ -100,7 +101,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           DrawerHeader(
             decoration: const BoxDecoration(
-              color: Colors.blue,
+              color: Color(0xFF429690),
             ),
             child: Row(
               children: [
@@ -132,6 +133,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         education: userEducation ?? '',
                         email: userEmail ?? '',
                         password: userPassword ?? '***********',
+                        userImageUrl: userImage ?? '',
                       ),
                     ),
                   );

@@ -23,6 +23,7 @@ class ProfileConfiguration extends StatefulWidget {
   String password = '';
   String email = '';
   String education = '';
+  final String userImageUrl;
 
   ProfileConfiguration({
     Key? key,
@@ -33,10 +34,10 @@ class ProfileConfiguration extends StatefulWidget {
     required this.userImage,
     required this.password,
     required this.email,
-    required this.education,
+    required this.education, required this.userImageUrl,
     // Add other user data variables as needed
   }) : super(key: key) {
-    print('ProfileConfiguration: name=$name, contact=$contact, address=$address, education=$education, email=$email, password=$password');
+    print('ProfileConfiguration: name=$name, contact=$contact, address=$address, education=$education, email=$email, password=$password, userImage=$userImage');
   }
 
 
@@ -49,6 +50,8 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
   final _profileKey = GlobalKey<FormState>();
   File? imageFile;
   bool obscurePassword = true;
+  String? userImageUrl;
+
 
   String err = '';
 
@@ -59,6 +62,7 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
   TextEditingController _contactController = TextEditingController();
   TextEditingController _educationController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
+
 
   FocusNode _nameFocus = FocusNode();
   FocusNode _contactFocus = FocusNode();
@@ -77,6 +81,7 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
     print('Education: ${widget.education}');
     print('Password: ${widget.password}');
 
+
     // Initialize controllers with widget values
     _emailController.text = widget.email;
     _nameController.text = widget.name;
@@ -84,6 +89,8 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
     _contactController.text = widget.contact;
     _educationController.text = widget.education;
     _passwordController.text = widget.password;
+    userImageUrl = widget.userImage;
+
   }
 
   void _saveChanges() async {
@@ -283,10 +290,15 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
                             ),
                             child: ClipOval(
                               child: imageFile == null
-                                  ? Image.asset(
-                                'assets/editPerson.png',
+                                  ? (widget.userImage.isNotEmpty
+                                  ? Image.network(
+                                widget.userImage,
                                 fit: BoxFit.fill,
                               )
+                                  : Image.asset(
+                                'assets/editPerson.png',
+                                fit: BoxFit.fill,
+                              ))
                                   : Image.file(
                                 imageFile!,
                                 fit: BoxFit.fill,
