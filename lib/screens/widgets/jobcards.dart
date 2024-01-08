@@ -22,7 +22,6 @@ class JobCards extends StatefulWidget {
 
   const JobCards(
       {
-
         required this.jobTitle,
         required this.jobDescription,
         required this.userImage,
@@ -151,8 +150,7 @@ class _JobCardsState extends State<JobCards> {
                 widget.jobTitle,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.poppins(color:Colors.black,fontSize: 20,fontWeight: FontWeight.bold,),
-
+                style: GoogleFonts.poppins(color:Colors.indigoAccent,fontSize: 20,),
 
               ),
               const SizedBox(height:5),
@@ -160,7 +158,7 @@ class _JobCardsState extends State<JobCards> {
                 widget.jobDescription,
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.poppins(color:Colors.black,fontSize: 20,fontWeight: FontWeight.bold,),
+                style: GoogleFonts.poppins(color:Colors.black,fontSize: 8,fontWeight: FontWeight.bold,),
 
 
               ),

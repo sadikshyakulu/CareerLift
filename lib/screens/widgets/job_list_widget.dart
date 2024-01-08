@@ -8,7 +8,12 @@ class JobListWidget{
     'Art',
     'Education',
     'Software-Programming',
-    'Hardware'
+    'Hardware',
+    'Human Resource',
+    'Labour',
+    'HealthCare',
+    'Fashion',
+    'Designing',
   ];
   void getData()async{
     final DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection("Users").doc(FirebaseAuth.instance.currentUser!.uid)

@@ -118,13 +118,16 @@ class _SplashScreenState extends State<SplashScreen> {
                   stops: [0.0, 0.7],
                 ),
               ),
-              child: Center(
-                child: Text(
-                  "Loading ..........",
-                  style: GoogleFonts.jomhuria(
-                    color: Colors.white.withOpacity(0.56),
-                    fontSize: 34,
-                    height: 0.8,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Center(
+                  child: Text(
+                    "Loading ..........",
+                    style: GoogleFonts.jomhuria(
+                      color: Colors.white.withOpacity(0.56),
+                      fontSize: 34,
+                      height: 0.8,
+                    ),
                   ),
                 ),
               ),
