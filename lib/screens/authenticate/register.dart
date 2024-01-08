@@ -12,23 +12,17 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
-
-
-
+// The Register class handles user registration.
 class Register extends StatefulWidget {
-
   final Function? toggleView; // Use Function?
 
   const Register({super.key, this.toggleView});
-
 
   @override
   State<Register> createState() => _RegisterState();
 }
 
 class _RegisterState extends State<Register> {
-
-  //final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   File? fileImage;
@@ -42,14 +36,14 @@ class _RegisterState extends State<Register> {
   final TextEditingController _educationController = TextEditingController(text: "");
 
   bool loading = false;
-  // text field state
+
   String err = '';
   String email = '';
   String password = '';
   String name = '';
   String contact = '';
-  String address ='';
-  String education='';
+  String address = '';
+  String education = '';
 
   bool obscurePassword = true; // State variable for password visibility
 
@@ -58,7 +52,8 @@ class _RegisterState extends State<Register> {
     super.initState();
   }
 
-  void disppose(){
+  void dispose() {
+    // Dispose of controllers to prevent memory leaks.
     _addressController.dispose();
     _contactController.dispose();
     _passwordController.dispose();
@@ -67,13 +62,15 @@ class _RegisterState extends State<Register> {
     _educationController.dispose();
     super.dispose();
   }
-  void  _submitRegisteration() async {
+
+  // Handles the registration logic.
+  void _submitRegistration() async {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
-      if(fileImage == null){
+      if (fileImage == null) {
         GlobalMethods.showErrorDialog(
-            error: 'Please pick a image',
-            ctx: context,
+          error: 'Please pick an image',
+          ctx: context,
         );
         return;
       }
@@ -82,42 +79,42 @@ class _RegisterState extends State<Register> {
       });
 
       try {
+        // Create a new user with email and password.
         await _auth.createUserWithEmailAndPassword(
-            email: _emailController.text.trim().toLowerCase(),
-            password: _passwordController.text.trim()
+          email: _emailController.text.trim().toLowerCase(),
+          password: _passwordController.text.trim(),
         );
         final User? user = _auth.currentUser;
         final _uid = user!.uid;
-        final ref = FirebaseStorage.instance.ref().child("userImages").child(
-            _uid + '.jpg');
-         await ref.putFile(fileImage!);
-         imageUrl= await ref.getDownloadURL();
-        FirebaseFirestore.instance.collection("Users")
-            .doc(_uid).set({
+        final ref = FirebaseStorage.instance.ref().child("userImages").child(_uid + '.jpg');
+        await ref.putFile(fileImage!);
+        imageUrl = await ref.getDownloadURL();
+        // Store user data in Firestore.
+        FirebaseFirestore.instance.collection("Users").doc(_uid).set({
           'uid': _uid,
           'name': _nameController.text,
           'email': _emailController.text,
-          'userImage':imageUrl,
+          'userImage': imageUrl,
           'password': _passwordController.text,
           'contact': _contactController.text,
           'address': _addressController.text,
           'education': _educationController.text,
           'createdAt': Timestamp.now(),
-
         });
+        // Navigate to the dashboard screen after successful registration.
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) => DashboardScreen(),
           ),
         );
-      }catch (err) {
+      } catch (err) {
         setState(() {
           loading = false;
         });
         GlobalMethods.showErrorDialog(
-            error: err.toString(),
-            ctx:context
+          error: err.toString(),
+          ctx: context,
         );
       }
     }
@@ -126,83 +123,80 @@ class _RegisterState extends State<Register> {
     });
   }
 
-  void _imageFromCamera() async
-  {
+  // Handles image selection from the camera.
+  void _imageFromCamera() async {
     XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
     _cropPickedImage(pickedFile!.path);
     Navigator.pop(context);
   }
 
-  void _imageFromGallery() async
-  {
+  // Handles image selection from the gallery.
+  void _imageFromGallery() async {
     XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
     _cropPickedImage(pickedFile!.path);
     Navigator.pop(context);
   }
 
-  void _cropPickedImage(filePath) async
-  {
+  // Crops the selected image.
+  void _cropPickedImage(filePath) async {
     CroppedFile? croppedImage = await ImageCropper().cropImage(
-        sourcePath: filePath, maxHeight: 1080, maxWidth: 1080
+      sourcePath: filePath,
+      maxHeight: 1080,
+      maxWidth: 1080,
     );
-    if(croppedImage != null)
-    {
+    if (croppedImage != null) {
       setState(() {
         fileImage = File(croppedImage.path);
       });
     }
   }
 
-  void _showImageDialog(){
+  // Shows a dialog for image selection (camera or gallery).
+  void _showImageDialog() {
     showDialog(
-        context: context,
-        builder: (context)
-        {
-          return AlertDialog(
-            title: Text('What would you like to do'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                InkWell(
-                  onTap: (){
-                    _imageFromCamera();
-                  },
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.all(4.0),
-                        child: Icon(
-                          Icons.camera,
-                        ),
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('What would you like to do'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              InkWell(
+                onTap: () {
+                  _imageFromCamera();
+                },
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: Icon(
+                        Icons.camera,
                       ),
-                      Text(
-                          "Camera"
-                      ),
-                    ],
-                  ),
+                    ),
+                    Text("Camera"),
+                  ],
                 ),
-                InkWell(
-                  onTap: (){
-                    _imageFromGallery();
-                  },
-                  child: Row(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.all(4.0),
-                        child: Icon(
-                          Icons.photo_album,
-                        ),
+              ),
+              InkWell(
+                onTap: () {
+                  _imageFromGallery();
+                },
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.all(4.0),
+                      child: Icon(
+                        Icons.photo_album,
                       ),
-                      Text(
-                          "Gallery"
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          );
-        }
+                    ),
+                    Text("Gallery"),
+                  ],
+                ),
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -210,6 +204,7 @@ class _RegisterState extends State<Register> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
 
+    // Helper function to build input fields.
     Widget buildInputField(String hintText, void Function(String) onChanged, TextEditingController control) {
       return TextFormField(
         validator: (val) {
@@ -231,16 +226,15 @@ class _RegisterState extends State<Register> {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(30),
           ),
-          suffixIcon: hintText == 'Password' ? GestureDetector(
+          suffixIcon: hintText == 'Password'
+              ? GestureDetector(
             onTap: () {
               setState(() {
                 obscurePassword = !obscurePassword;
               });
             },
             child: Icon(
-              obscurePassword
-                  ? Icons.visibility_off
-                  : Icons.visibility,
+              obscurePassword ? Icons.visibility_off : Icons.visibility,
               color: Colors.black,
             ),
           )
@@ -249,161 +243,151 @@ class _RegisterState extends State<Register> {
       );
     }
 
-
-    return loading ? const Loading() : Scaffold(
-        backgroundColor: Colors.blueGrey[100],
-
-        body: SizedBox(
-            width: size.width,
-            height: size.height,
-            child: SingleChildScrollView(
-              child: Center(
-                child: Column(
-                    children: [
-                      //image logo
-                      Stack(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(top:40),
-                            child: Center(
-                              child: Container(
-                                padding: const EdgeInsets.all(15),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF1B5C58),
-                                  borderRadius: BorderRadius.circular(30),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.5), // Shadow color
-                                      spreadRadius: 5, // Spread radius
-                                      blurRadius: 7, // Blur radius
-                                      offset: const Offset(0, 4), // Offset/direction of shadow
-                                    ),
-                                  ],
-                                ),
-                                height: size.height *0.9,
-                                width: size.width *0.85 ,
-                                child: SingleChildScrollView(
-                                  child: Form(
-                                    key: _formKey,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(height: 3),
-                                        Center(
-                                          child: GestureDetector(
-                                            onTap: (){
-                                              _showImageDialog();
-                                            },
-                                            child: Padding(
-                                              padding: EdgeInsets.all(8.0),
-                                              child: Container(
-                                                width: size.width * 0.24,
-                                                height: size.height * 0.24,
-                                                decoration: BoxDecoration(
-                                                    border: Border.all(width: 1, color: Colors.cyanAccent),
-                                                    borderRadius: BorderRadius.circular(20)
-                                                ),
-                                                child: ClipRRect(
-                                                  borderRadius: BorderRadius.circular(16),
-                                                  child: fileImage == null
-                                                      ? Icon(Icons.camera, color: Colors.white, size: 30,)
-                                                      : Image.file(fileImage!, fit: BoxFit.fill,),
-                                                ),
-                                              ),
-                                            ),
+    return loading
+        ? const Loading()
+        : Scaffold(
+      backgroundColor: Colors.blueGrey[100],
+      body: SizedBox(
+        width: size.width,
+        height: size.height,
+        child: SingleChildScrollView(
+          child: Center(
+            child: Column(
+              children: [
+                // Image logo
+                Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 40),
+                      child: Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF1B5C58),
+                            borderRadius: BorderRadius.circular(30),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.grey.withOpacity(0.5),
+                                spreadRadius: 5,
+                                blurRadius: 7,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          height: size.height * 0.9,
+                          width: size.width * 0.85,
+                          child: SingleChildScrollView(
+                            child: Form(
+                              key: _formKey,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 3),
+                                  Center(
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        _showImageDialog();
+                                      },
+                                      child: Padding(
+                                        padding: EdgeInsets.all(8.0),
+                                        child: Container(
+                                          width: size.width * 0.28,
+                                          height: size.height * 0.14,
+                                          decoration: BoxDecoration(
+                                              border: Border.all(width: 1, color: Colors.cyanAccent),
+                                              borderRadius: BorderRadius.circular(20)),
+                                          child: ClipRRect(
+                                            borderRadius: BorderRadius.circular(16),
+                                            child: fileImage == null
+                                                ? Icon(Icons.camera, color: Colors.white, size: 30,)
+                                                : Image.file(fileImage!, fit: BoxFit.fill,),
                                           ),
                                         ),
-                                        const SizedBox(height: 3),
-                                        buildInputField('Name', (val) {
-                                          setState(() => name = val);
-                                        }, _nameController
-                                        ),
-                                        const SizedBox(height: 3),
-                                        buildInputField('Address', (val) {
-                                          setState(() => address = val);
-                                        }, _addressController
-                                        ),
-                                        const SizedBox(height: 3),
-                                        buildInputField('Contact', (val) {
-                                          setState(() => contact = val);
-                                        }, _contactController
-                                        ),
-                                        const SizedBox(height: 3),
-                                        buildInputField('Education(Major)', (val) {
-                                          setState(() => education = val);
-                                        }, _educationController
-                                        ),
-                                        const SizedBox(height: 3),
-                                        buildInputField('Email', (val) {
-                                          setState(() => email = val);
-                                        }, _emailController
-                                        ),
-                                        const SizedBox(height: 3),
-                                        buildInputField('Password', (val) {
-                                          setState(() => password = val);
-                                        }, _passwordController
-                                        ),
-                                        const SizedBox(height: 3),
-                                        Center(
-                                          child: ElevatedButton(
-                                            onPressed: () async {
-                                              // Handle sign-in logic
-                                              _submitRegisteration();
-                                            },
-                                            style: ElevatedButton.styleFrom(
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius: BorderRadius.circular(30),
-
-                                              ),
-                                            ),
-                                            child: const Text('Sign Up'),
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          height: size.height/35,
-                                        ),
-                                        Center(
-                                          child: Text(
-                                            err,
-                                            style: const TextStyle(
-                                                color: Colors.red
-                                            ),
-                                          ),
-                                        )
-                                      ],
+                                      ),
                                     ),
                                   ),
-                                ),
+                                  const SizedBox(height: 3),
+                                  buildInputField('Name', (val) {
+                                    setState(() => name = val);
+                                  }, _nameController),
+                                  const SizedBox(height: 3),
+                                  buildInputField('Address', (val) {
+                                    setState(() => address = val);
+                                  }, _addressController),
+                                  const SizedBox(height: 3),
+                                  buildInputField('Contact', (val) {
+                                    setState(() => contact = val);
+                                  }, _contactController),
+                                  const SizedBox(height: 3),
+                                  buildInputField('Education(Major)', (val) {
+                                    setState(() => education = val);
+                                  }, _educationController),
+                                  const SizedBox(height: 3),
+                                  buildInputField('Email', (val) {
+                                    setState(() => email = val);
+                                  }, _emailController),
+                                  const SizedBox(height: 3),
+                                  buildInputField('Password', (val) {
+                                    setState(() => password = val);
+                                  }, _passwordController),
+                                  const SizedBox(height: 3),
+                                  Center(
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        // Handle sign-up logic
+                                        _submitRegistration();
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(30),
+                                        ),
+                                      ),
+                                      child: const Text('Sign Up'),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    height: size.height / 35,
+                                  ),
+                                  Center(
+                                    child: Text(
+                                      err,
+                                      style: const TextStyle(color: Colors.red),
+                                    ),
+                                  )
+                                ],
                               ),
                             ),
                           ),
-
-                        ],
-                      ),
-                      SizedBox(
-                        width: size.width,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text("Already have an account ?",style:GoogleFonts.workSans(color:const Color(0xFF000000),fontSize: 16)),
-                            Row(
-                              children: [
-                                IconButton(
-                                  onPressed: () {
-                                    Navigator.pushReplacement(context,MaterialPageRoute(builder:(_) => SignIn()));
-                                  },
-                                  icon: const Icon(Icons.person),
-                                ),
-                                Text('Sign In',style:GoogleFonts.poppins(color:const Color(0xFF265A89),fontSize: 16,fontWeight: FontWeight.w600,decoration: TextDecoration.underline)),
-                              ],
-                            )
-                          ],
                         ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  width: size.width,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text("Already have an account ?", style: GoogleFonts.workSans(color: const Color(0xFF000000), fontSize: 16)),
+                      Row(
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => SignIn()));
+                            },
+                            icon: const Icon(Icons.person),
+                          ),
+                          Text('Sign In', style: GoogleFonts.poppins(color: const Color(0xFF265A89), fontSize: 16, fontWeight: FontWeight.w600, decoration: TextDecoration.underline)),
+                        ],
                       )
-                    ]),
-              ),
-            )
-        )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

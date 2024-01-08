@@ -19,18 +19,21 @@ class UploadJob extends StatefulWidget {
 
 class _UploadJobState extends State<UploadJob> {
 
+  // Controllers for various input fields
   TextEditingController _jobCategoryController = TextEditingController(text: "Select the category");
   TextEditingController _jobTitleController = TextEditingController(text: "");
   TextEditingController _jobDescriptionController = TextEditingController(text: "");
   TextEditingController _jobDeadlineController = TextEditingController(text: "Select Job Deadline date");
 
+  // Form key to validate the form
   final _formKey = GlobalKey<FormState>();
+
+  // Variables to manage date and loading state
   DateTime? picked;
   Timestamp? deadlineDateTimeStamp;
   bool _isloading = false;
 
   @override
-
   void dispose(){
     super.dispose();
     _jobCategoryController.dispose();
@@ -39,7 +42,7 @@ class _UploadJobState extends State<UploadJob> {
     _jobDescriptionController.dispose();
   }
 
-
+  // Helper method for creating text widgets with a title
   Widget _textTitle({
     required String title
   }) {
@@ -51,6 +54,7 @@ class _UploadJobState extends State<UploadJob> {
     );
   }
 
+  // Helper method for creating input field widgets
   Widget _textTile({
     required String valuekey,
     required TextEditingController controller,
@@ -84,14 +88,18 @@ class _UploadJobState extends State<UploadJob> {
     );
   }
 
+  // Method to handle the job upload task
   void _uploadTask() async {
+    // Generate a unique ID for the job
     final jid = const Uuid().v4();
+    // Get the current user
     User? user = FirebaseAuth.instance.currentUser;
-
     final _uid = user!.uid;
+    // Validate the form
     final isValid = _formKey.currentState!.validate();
 
     if(isValid){
+      // Check if the required fields are selected
       if(_jobDeadlineController.text == "Select Job Deadline date" || _jobCategoryController == "Select the category"){
         GlobalMethods.showErrorDialog(
             error: "Please complete the form",
@@ -99,10 +107,12 @@ class _UploadJobState extends State<UploadJob> {
         );
         return;
       }
+      // Set loading state
       setState(() {
         _isloading =true;
       });
       try{
+        // Upload job details to Firestore
         await FirebaseFirestore.instance.collection("Jobs").doc(jid).set({
           'jid': jid,
           'uploadedBy': _uid,
@@ -120,12 +130,14 @@ class _UploadJobState extends State<UploadJob> {
           'userImage': userImage,
           'applicants': 0,
         });
+        // Clear input fields
         _jobTitleController.clear();
         _jobDescriptionController.clear();
         setState(() {
           _jobCategoryController.text = "Select the category";
           _jobDeadlineController.text = "Select Job Deadline date";
         });
+        // Show success message
         await Fluttertoast.showToast(
           msg: 'Task is uploaded',
           toastLength: Toast.LENGTH_LONG,
@@ -133,6 +145,7 @@ class _UploadJobState extends State<UploadJob> {
           fontSize: 24,
         );
       } catch(error){
+        // Handle errors and show error dialog
         setState(() {
           _isloading =false;
         });
@@ -141,16 +154,18 @@ class _UploadJobState extends State<UploadJob> {
             ctx: context
         );
       } finally {
+        // Reset loading state
         setState(() {
           _isloading = false;
         });
       }
     }
     else {
-      print("Its not valid");
+      print("It's not valid");
     }
   }
 
+  // Method to display date picker dialog
   void _pickDateDialog() async {
     DateTime? pickedDate = await showDatePicker(
       context: context,
@@ -168,25 +183,6 @@ class _UploadJobState extends State<UploadJob> {
       });
     }
   }
-
-// void getData()async{
-//     final DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection("Users").doc(FirebaseAuth.instance.currentUser!.uid)
-//         .get();
-//     setState(() {
-//       name = userDoc.get("name");
-//       userImage=userDoc.get("userImage");
-//       address=userDoc.get("address");
-//
-//     });
-// }
-//
-// @override
-//   void initState() {
-//     // TODO: implement initState
-//     super.initState();
-//     getData();
-//   }
-
 
   @override
   Widget build(BuildContext context) {

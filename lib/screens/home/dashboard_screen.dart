@@ -21,7 +21,7 @@ class DashboardScreen extends StatefulWidget {
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
 final FirebaseAuth _auth = FirebaseAuth.instance;
-
+// User details variables
 class _DashboardScreenState extends State<DashboardScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -35,6 +35,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   String? userEducation;
   String? userAddress;
 
+  // Fetch user details from Firestore
 
   Future<void> fetchUserDetails() async {
     final User? user = _auth.currentUser;
@@ -60,6 +61,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       });
     }
   }
+  // Update user details in Firestore
 
   Future<void> updateUserDetails(
       String name,
@@ -87,10 +89,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       fetchUserDetails();
     }
   }
-
-
-
-
+  // Sidebar drawer widget
 
   _buildSidebar(BuildContext context) {
     return Drawer(
@@ -225,6 +224,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  // Display job categories dialog
 
   _showTaskCategoriesDialog({required Size size}) {
     showDialog(
@@ -480,156 +480,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
 
-
-    // User is authenticated, continue with your dashboard layout
-    return Scaffold(
-      backgroundColor: const Color(0xFFDADADA),
-      bottomNavigationBar: BottomNavbar(indexNum: 0),
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(150.0),
-        child: AppBar(
-          backgroundColor: const Color(0xFF2C7F79),
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.vertical(
-              bottom: Radius.circular(20), // Adjust the circular value
-            ),
-          ),
-          title: Text('Job Direct',style:GoogleFonts.jomhuria(color:const Color(0xFF004F5C),fontSize: 64)),
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 5),
-            child: ClipRect(
-
-              child: Image.asset(
-                "assets/small logo.png",
-                width: 50,
-                height: 50,
-              ),
-
-            ),
-          ),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(48),
-            child: Padding(
-              padding:  const EdgeInsets.all(8.0),
-              child:  Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        hintText: 'Search...',
-                        prefix: Icon(Icons.search),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(20.0),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 10), // Adjust the space between TextField and icon
-                  IconButton(
-                      onPressed: (){
-                        _showTaskCategoriesDialog(size: size);
-                      },
-                      icon: Icon(Icons.sort)
-                  ) // Replace "other_icon" with the desired icon
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-
-          const SizedBox(height: 20,),
-          Padding(
-            padding: const EdgeInsets.only(left: 20),
-            child: Text("Available Jobs",style:GoogleFonts.poppins(color:Colors.black,fontSize: 20,fontWeight: FontWeight.w600, )),
-          ),
-          const SizedBox(height: 10,),
-          Expanded(
-            child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-              stream: FirebaseFirestore.instance
-                  .collection('Jobs')
-                  .where('recruitment', isEqualTo: true)
-                  .orderBy('createdAt', descending: false)
-                  .snapshots(),
-              builder: (context, AsyncSnapshot snapshot) {
-                if (snapshot.hasError) {
-                  print('Error: ${snapshot.error}');
-                  return Text('Error: ${snapshot.error}');
-                }
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Loading();
-                } else if (snapshot.connectionState == ConnectionState.active) {
-                  if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
-                    // Apply filter if it is set
-                    if (_jobCategoryFilter != null && _jobCategoryFilter!.isNotEmpty) {
-                      final filteredJobs = snapshot.data!.docs.where((job) =>
-                      job['jobCategory'] == _jobCategoryFilter &&
-                          job['recruitment'] == true);
-
-                      if (filteredJobs.isEmpty) {
-                        return const Center(child: Text('No jobs for the selected category'));
-                      } else {
-                        return ListView.builder(
-                          itemCount: filteredJobs.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return JobCards(
-                              jobTitle: filteredJobs.elementAt(index)['jobTitle'],
-                              jobDescription: filteredJobs.elementAt(index)['jobDescription'],
-                              jid: filteredJobs.elementAt(index)['jid'],
-                              email: filteredJobs.elementAt(index)['email'],
-                              name: filteredJobs.elementAt(index)['name'],
-                              address: filteredJobs.elementAt(index)['address'],
-                              recruitment: filteredJobs.elementAt(index)['recruitment'],
-                              uploadedBy: filteredJobs.elementAt(index)['uploadedBy'],
-                              userImage: filteredJobs.elementAt(index)['userImage'],
-                              jobDeadline: filteredJobs.elementAt(index)['jobDeadline'],
-                            );
-                          },
-                        );
-                      }
-                    } else {
-                      // No filter, display all jobs
-                      return ListView.builder(
-                        itemCount: snapshot.data?.docs.length,
-                        itemBuilder: (BuildContext context, int index) {
-                          return JobCards(
-                            jobTitle: snapshot.data!.docs[index]['jobTitle'],
-                            jobDescription: snapshot.data!.docs[index]['jobDescription'],
-                            jid: snapshot.data?.docs[index]['jid'],
-                            email: snapshot.data?.docs[index]['email'],
-                            name: snapshot.data?.docs[index]['name'],
-                            address: snapshot.data?.docs[index]['address'],
-                            recruitment: snapshot.data?.docs[index]['recruitment'],
-                            uploadedBy: snapshot.data?.docs[index]['uploadedBy'],
-                            userImage: snapshot.data?.docs[index]['userImage'],
-                            jobDeadline: snapshot.data?.docs[index]['jobDeadline'],
-                          );
-                        },
-                      );
-                    }
-                  } else {
-                    return const Center(
-                      child: Text('No jobs'),
-                    );
-                  }
-                }
-                return const Center(
-                  child: Text("Found an Error"),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-      endDrawer: _buildSidebar(context),
-    );
   }
 }
 

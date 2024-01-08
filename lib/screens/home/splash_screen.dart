@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+// The SplashScreen class represents the initial screen of the application.
 class SplashScreen extends StatefulWidget {
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
+// The _SplashScreenState class holds the state for the SplashScreen widget.
 class _SplashScreenState extends State<SplashScreen> {
-
   @override
   void initState() {
     super.initState();
 
-    //Simulate loading process
+    // Simulate a loading process with a delay of 5 seconds.
     Future.delayed(const Duration(seconds: 5), () {
-
-
-      //Navigate to the dashboard after loading
+      // Navigate to the dashboard after an additional 5 seconds.
       Future.delayed(const Duration(seconds: 5), () {
         Navigator.pushReplacementNamed(context, '/wrapper');
       });
@@ -31,6 +30,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: Column(
         children: [
+          // Top section of the splash screen with gradient and logo.
           Container(
             height: 488,
             width: size.width,
@@ -80,6 +80,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
           ),
           const SizedBox(height: 1),
+          // Bottom section of the splash screen with app name and layout variations.
           Container(
             height: 350,
             width: size.width,
@@ -97,6 +98,7 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
             child: Column(
               children: [
+                // App name displayed using Google Fonts.
                 Text(
                   "JobDirect",
                   style: GoogleFonts.jomhuria(
@@ -104,10 +106,12 @@ class _SplashScreenState extends State<SplashScreen> {
                     fontSize: 96,
                   ),
                 ),
+                // Render different layouts based on the device type.
                 forAndroid ? AndroidLayout() : PCLayout(),
               ],
             ),
           ),
+          // Expanded section with a loading indicator.
           Expanded(
             child: Container(
               decoration: const BoxDecoration(
@@ -138,6 +142,7 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 
+  // Widget for Android-specific layout.
   Widget AndroidLayout() {
     return Padding(
       padding: const EdgeInsets.only(top: 70),
@@ -149,6 +154,7 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 
+  // Widget for PC-specific layout.
   Widget PCLayout() {
     return Padding(
       padding: const EdgeInsets.only(top: 30),

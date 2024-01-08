@@ -6,7 +6,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:uuid/uuid.dart';
 
@@ -28,12 +27,9 @@ class ApplyJob extends StatefulWidget {
 }
 
 class _ApplyJobState extends State<ApplyJob> {
-
   final FirebaseAuth _auth= FirebaseAuth.instance;
-
   final TextEditingController _commentController = TextEditingController();
   bool _isCommenting = false;
-
 
   String? authorName;
   String? userImageUrl;
@@ -51,8 +47,6 @@ class _ApplyJobState extends State<ApplyJob> {
   bool isDeadlineAvailable =false;
 
   bool showComment =false;
-
-
 
   void getDataOfJob()async {
     final DocumentSnapshot userDoc = await FirebaseFirestore.instance
@@ -110,8 +104,6 @@ class _ApplyJobState extends State<ApplyJob> {
         print('postDate: $postDate');
         print('postedDate: $postedDate');
 
-
-
       }
       );
       var date = deadlineDateTimeStamp!.toDate();
@@ -135,7 +127,6 @@ class _ApplyJobState extends State<ApplyJob> {
         Divider(
           thickness: 1,
           color: Colors.black,
-
         ),
         SizedBox(height: 10,),
       ],
@@ -161,7 +152,6 @@ class _ApplyJobState extends State<ApplyJob> {
     });
     Navigator.pop(context);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -301,7 +291,6 @@ class _ApplyJobState extends State<ApplyJob> {
                             ),
                             const SizedBox( width:10,),
                             const Icon(Icons.how_to_reg,color: Colors.black38,)
-
                           ],
                         ),
                         FirebaseAuth.instance.currentUser!.uid != widget.uploadedBy
@@ -409,9 +398,6 @@ class _ApplyJobState extends State<ApplyJob> {
                                   child: const Icon(Icons.check_box_rounded,
                                       color: Colors.red),
                                 ),
-
-
-
                               ],
                             ),
                           ],
@@ -491,10 +477,8 @@ class _ApplyJobState extends State<ApplyJob> {
                                           :postedDate!,
                                       style:GoogleFonts.inter(color: Colors.blueAccent,
                                         fontSize:15 , fontWeight: FontWeight.w600,) ,
-
                                     )
                                   ],
-
                                 ),
                                 const SizedBox(height: 12,),
                                 Row(
@@ -509,11 +493,8 @@ class _ApplyJobState extends State<ApplyJob> {
                                           :deadlineDate!,
                                       style:GoogleFonts.inter(color: const Color(0xFFEB4335),
                                         fontSize:15 , fontWeight: FontWeight.w600,) ,
-
                                     ),
-
                                   ],
-
                                 ),
                                 dividerWidget(),
                               ],
@@ -589,9 +570,6 @@ class _ApplyJobState extends State<ApplyJob> {
                                                                   'userImageUrl':userImage,
                                                                   'commentBody':_commentController.text,
                                                                   'time':Timestamp.now(),
-
-
-
                                                                 }]),
                                                               });
                                                               await Fluttertoast.showToast(
@@ -599,15 +577,12 @@ class _ApplyJobState extends State<ApplyJob> {
                                                                   toastLength:Toast.LENGTH_LONG,
                                                                   backgroundColor: Colors.grey,
                                                                   fontSize: 18.0
-
                                                               );
                                                               _commentController.clear();
-
                                                             }
                                                             setState(() {
                                                               showComment=true;
                                                             });
-
                                                           },
                                                           color: Colors.blueAccent,
                                                           elevation:  0,
@@ -618,7 +593,6 @@ class _ApplyJobState extends State<ApplyJob> {
                                                             'Post',style:GoogleFonts.inter(color: const Color(0xFFEB4335),
                                                             fontSize:15 , fontWeight: FontWeight.w600,) ,
                                                           ),
-
                                                         )
                                                     ),
                                                     TextButton(
@@ -626,14 +600,12 @@ class _ApplyJobState extends State<ApplyJob> {
                                                         setState(() {
                                                           _isCommenting= !_isCommenting;
                                                           showComment=false;
-
                                                         });
                                                       },
                                                       child:Text('Cancel',style:GoogleFonts.inter(color: const Color(0xFFEB4335),
                                                         fontSize:15 , fontWeight: FontWeight.w600,) ,),
                                                     )
                                                   ]
-
                                               )
                                           ),
 
@@ -647,41 +619,29 @@ class _ApplyJobState extends State<ApplyJob> {
                                             onPressed: (){
                                               setState(() {
                                                 _isCommenting= !_isCommenting;
-
-
                                               });
                                             },
                                             icon: const Icon(
                                               Icons.add_comment_rounded,
                                               color: Colors.blueAccent,
                                               size: 40,
-
                                             ),
-
-
                                           ),
                                           const SizedBox(width: 10 ),
                                           IconButton(
                                             onPressed: (){
                                               setState(() {
-
                                                 showComment=true;
-
                                               });
                                             },
                                             icon: const Icon(
                                               Icons.arrow_drop_down_circle,
                                               color: Colors.blueAccent,
                                               size: 40,
-
                                             ),
-
-
                                           ),
-
                                         ],
                                       ),
-
                                     ),
                                     showComment == false
                                         ? Container()
@@ -716,8 +676,6 @@ class _ApplyJobState extends State<ApplyJob> {
                                                 commenterName: snapshot.data!['jobComments'][index]['name'],
                                                 commentBody: snapshot.data!['jobComments'][index]['commentBody'],
                                                 commenterImageUrl: snapshot.data!['jobComments'][index]['userImageUrl'],
-
-
                                               );
                                             },
                                             separatorBuilder: (context,index){
@@ -731,21 +689,13 @@ class _ApplyJobState extends State<ApplyJob> {
 
                                           );
                                         },
-
                                       ),
-
-
-
                                     ),
                                   ],
                                 ),
                               )
                           ),
                         )
-
-
-
-
                       ],
                     ),
                   ),
@@ -755,12 +705,6 @@ class _ApplyJobState extends State<ApplyJob> {
             ],
           ),
         )
-
-
-
-
-
-
     );
   }
 }

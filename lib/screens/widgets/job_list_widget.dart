@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+// Importing global variables from services
 import '../../services/global_variables.dart';
 
-class JobListWidget{
+// Class representing the JobListWidget
+class JobListWidget {
+  // Static list of job categories
   static List<String> jobCategoryList = [
     'Art',
     'Education',
@@ -15,11 +18,18 @@ class JobListWidget{
     'Fashion',
     'Designing',
   ];
-  void getData()async{
-    final DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection("Users").doc(FirebaseAuth.instance.currentUser!.uid)
+
+  // Method to fetch user data from Firestore
+  void getData() async {
+    // Retrieve the document snapshot for the current user
+    final DocumentSnapshot userDoc = await FirebaseFirestore.instance
+        .collection("Users")
+        .doc(FirebaseAuth.instance.currentUser!.uid)
         .get();
+
+    // Update global variables with user data
     name = userDoc.get("name");
-    userImage=userDoc.get("userImage");
-    address=userDoc.get("address");
+    userImage = userDoc.get("userImage");
+    address = userDoc.get("address");
   }
 }

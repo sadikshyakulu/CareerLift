@@ -1,14 +1,11 @@
+// Import necessary packages and files
 import 'package:app_jobdirect/firebase_options.dart';
 import 'package:app_jobdirect/providers/user_provider.dart';
-import 'package:app_jobdirect/screens/authenticate/register.dart';
-import 'package:app_jobdirect/screens/authenticate/toggle_auth.dart';
-import 'package:app_jobdirect/screens/home/dashboard_screen.dart';
 import 'package:app_jobdirect/screens/home/splash_screen.dart';
 import 'package:app_jobdirect/wrapper.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 
 void main() async {
   // Initialize Firebase before runApp
@@ -17,6 +14,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // Run the application, providing a UserProvider to the widget tree
   runApp(
     ChangeNotifierProvider(
       create: (context) => UserProvider(),
@@ -25,12 +23,10 @@ void main() async {
   );
 }
 
-
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
-
-  // This widget is the root of your application.
+  // Build the root of the application using MaterialApp
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
