@@ -1,4 +1,5 @@
 import 'package:app_jobdirect/screens/home/dashboard_screen.dart';
+import 'package:app_jobdirect/screens/widgets/comments_widget.dart';
 import 'package:app_jobdirect/services/global_variables.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -51,26 +52,34 @@ class _ApplyJobState extends State<ApplyJob> {
 
   bool showComment =false;
 
+
+
   void getDataOfJob()async {
     final DocumentSnapshot userDoc = await FirebaseFirestore.instance
         .collection('Users')
         .doc(widget.uploadedBy)
         .get();
+    print('uplodedBy in getDataOfJob ${widget.uploadedBy}');
 
     if (userDoc == null) {
+      print("userDoc==null");
       return;
     }
     else {
       setState(() {
         authorName = userDoc.get('name');
         userImageUrl = userDoc.get('userImage');
+        print('autherName$authorName');
+        print('userImageUrl$userImageUrl');
       });
     }
     final DocumentSnapshot jobDatabase = await FirebaseFirestore.instance
         .collection("Jobs")
         .doc(widget.jid)
         .get();
-    if (jobDatabase == null) {
+    print('jid in getDataOfJob ${widget.uploadedBy}');
+    if (!jobDatabase.exists) {
+      // Document doesn't exist
       return;
     }
     else {
@@ -87,6 +96,22 @@ class _ApplyJobState extends State<ApplyJob> {
         recruitment = jobDatabase.get('recruitment');
         var postDate = postedDateTimeStamp!.toDate();
         postedDate = '${postDate.year}-${postDate.month}-${postDate.day}';
+
+        print('Address: $addressCom');
+        print('Applicants: $applicants');
+        print('Created At: $postedDateTimeStamp');
+        print('Email: $emailCom');
+        print('joTitle: $jobTitle');
+        print('jobDescription: $jobDescription');
+        print('jobCategory: $jobCategory');
+        print('deadline: $deadlineDateTimeStamp');
+        print('jobDeadline: $deadlineDate');
+        print('recruitment: $recruitment');
+        print('postDate: $postDate');
+        print('postedDate: $postedDate');
+
+
+
       }
       );
       var date = deadlineDateTimeStamp!.toDate();
@@ -98,6 +123,7 @@ class _ApplyJobState extends State<ApplyJob> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    print('uploadedBy in initState: ${widget.uploadedBy}');
     getDataOfJob();
   }
 
@@ -201,7 +227,7 @@ class _ApplyJobState extends State<ApplyJob> {
                     child: Column(
                       children: [
                         Padding(
-                          padding: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(10.0),
                           child: Text(
                               jobTitle==null
                                   ?
@@ -365,7 +391,7 @@ class _ApplyJobState extends State<ApplyJob> {
 
                                     }
                                     getDataOfJob();
-                                    print(recruitment);
+                                    print('Recuirement on of button $recruitment');
 
 
                                   },
@@ -551,7 +577,7 @@ class _ApplyJobState extends State<ApplyJob> {
                                                               );
                                                             }
                                                             else{
-                                                              final _generatedId =Uuid().v4();
+                                                              final _generatedId =const Uuid().v4();
                                                               await FirebaseFirestore.instance.collection('Jobs')
                                                                   .doc(widget.jid)
                                                                   .update({
@@ -563,6 +589,7 @@ class _ApplyJobState extends State<ApplyJob> {
                                                                   'userImageUrl':userImage,
                                                                   'commentBody':_commentController.text,
                                                                   'time':Timestamp.now(),
+
 
 
                                                                 }]),
@@ -638,7 +665,7 @@ class _ApplyJobState extends State<ApplyJob> {
                                             onPressed: (){
                                               setState(() {
 
-                                                showComment=false;
+                                                showComment=true;
 
                                               });
                                             },
@@ -656,11 +683,69 @@ class _ApplyJobState extends State<ApplyJob> {
                                       ),
 
                                     ),
+                                    showComment == false
+                                        ? Container()
+                                        :
+                                    Padding(
+                                      padding: const EdgeInsets.all(8),
+                                      child: FutureBuilder<DocumentSnapshot>(
+                                        future:FirebaseFirestore.instance
+                                            .collection('Jobs')
+                                            .doc(widget.jid)
+                                            .get(),
+                                        builder: (context,snapshot){
+                                          if(snapshot.connectionState==ConnectionState.waiting)
+                                          {
+                                            return const Center(child:CircularProgressIndicator(),);
+
+                                          }
+                                          else{
+                                            if(snapshot.data==null){
+                                              const Center (
+                                                child:Text('No Comment for this job'),
+                                              );
+                                            }
+                                          }
+                                          return ListView.separated(
+                                            shrinkWrap: true,
+                                            physics: const NeverScrollableScrollPhysics(),
+                                            itemBuilder: (context,index){
+                                              return CommentWidget(
+                                                commentId:snapshot.data!['jobComments'][index]['commentId'],
+                                                commenterId:snapshot.data!['jobComments'][index]['userId'],
+                                                commenterName: snapshot.data!['jobComments'][index]['name'],
+                                                commentBody: snapshot.data!['jobComments'][index]['commentBody'],
+                                                commenterImageUrl: snapshot.data!['jobComments'][index]['userImageUrl'],
+
+
+                                              );
+                                            },
+                                            separatorBuilder: (context,index){
+                                              return const Divider(
+                                                thickness: 1,
+                                                color: Colors.grey,
+
+                                              );
+                                            },
+                                            itemCount: snapshot.data!['jobComments'].length,
+
+                                          );
+                                        },
+
+                                      ),
+
+
+
+                                    ),
                                   ],
                                 ),
                               )
                           ),
                         )
+
+
+
+
                       ],
                     ),
                   ),
@@ -670,6 +755,12 @@ class _ApplyJobState extends State<ApplyJob> {
             ],
           ),
         )
+
+
+
+
+
+
     );
   }
 }

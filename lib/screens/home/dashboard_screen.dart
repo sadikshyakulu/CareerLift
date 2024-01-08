@@ -86,13 +86,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    JobListWidget persistentObject = JobListWidget();
-    persistentObject.getData();
-    fetchUserDetails(); // Fetch user details when the widget initializes
-  }
+
 
 
 
@@ -310,6 +304,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  @override
+  void initState() {
+    super.initState();
+    JobListWidget persistentObject = JobListWidget();
+    persistentObject.getData();
+    fetchUserDetails(); // Fetch user details when the widget initializes
+  }
 
   @override
 

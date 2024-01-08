@@ -17,17 +17,17 @@ class BottomNavbar extends StatelessWidget {
       items: const [
         BottomNavigationBarItem(
           icon: Icon(Icons.home, size: 19, color: Colors.black),
-          label: '',
+          label: 'Home',
           tooltip: 'Home',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.add, size: 19, color: Colors.black),
-          label: '',
+          label: 'Add Jobs',
           tooltip: 'Add Jobs',
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.cabin, size: 19, color: Colors.black),
-          label: '',
+          label: 'GithubJobs',
           tooltip: 'GithubJobs',
         ),
 

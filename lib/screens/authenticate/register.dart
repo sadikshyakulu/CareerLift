@@ -32,6 +32,7 @@ class _RegisterState extends State<Register> {
   final _formKey = GlobalKey<FormState>();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   File? fileImage;
+  String? imageUrl;
 
   final TextEditingController _nameController = TextEditingController(text: "");
   final TextEditingController _emailController = TextEditingController(text: "");
@@ -69,6 +70,13 @@ class _RegisterState extends State<Register> {
   void  _submitRegisteration() async {
     final isValid = _formKey.currentState!.validate();
     if (isValid) {
+      if(fileImage == null){
+        GlobalMethods.showErrorDialog(
+            error: 'Please pick a image',
+            ctx: context,
+        );
+        return;
+      }
       setState(() {
         loading = true;
       });
@@ -82,17 +90,20 @@ class _RegisterState extends State<Register> {
         final _uid = user!.uid;
         final ref = FirebaseStorage.instance.ref().child("userImages").child(
             _uid + '.jpg');
-        // await ref.putFile(imageFile!);
+         await ref.putFile(fileImage!);
+         imageUrl= await ref.getDownloadURL();
         FirebaseFirestore.instance.collection("Users")
             .doc(_uid).set({
           'uid': _uid,
           'name': _nameController.text,
           'email': _emailController.text,
+          'userImage':imageUrl,
           'password': _passwordController.text,
           'contact': _contactController.text,
           'address': _addressController.text,
           'education': _educationController.text,
           'createdAt': Timestamp.now(),
+
         });
         Navigator.pushReplacement(
           context,

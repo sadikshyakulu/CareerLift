@@ -1,12 +1,3 @@
-// class JobListWidget{
-//   static List<String> jobCategoryList = [
-//     'Art',
-//     'Education',
-//     'Software-Programming',
-//     'Hardware'
-//   ];
-// }
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
