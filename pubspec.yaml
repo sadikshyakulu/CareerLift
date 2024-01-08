@@ -43,6 +43,8 @@ dependencies:
   url_launcher: ^6.2.2
   fluttertoast: ^8.2.4
   uuid: ^4.2.2
+  provider: ^6.1.1
+  http: ^1.1.2
   firebase_core:
   firebase_auth:
   cloud_firestore:

@@ -1,10 +1,9 @@
+import 'package:app_jobdirect/screens/home/dashboard_screen.dart';
+import 'package:app_jobdirect/screens/home/github_jobs_screen.dart';
+import 'package:app_jobdirect/screens/home/upload_job_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import '../home/dashboard_screen.dart';
-import '../home/profile_config_screen.dart';
-import '../home/upload_job_screen.dart';
 
 class BottomNavbar extends StatelessWidget {
   final int indexNum;
@@ -27,15 +26,11 @@ class BottomNavbar extends StatelessWidget {
           tooltip: 'Add Jobs',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.bookmark, size: 19, color: Colors.black),
+          icon: Icon(Icons.cabin, size: 19, color: Colors.black),
           label: '',
-          tooltip: 'Bookmarked',
+          tooltip: 'GithubJobs',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person, size: 19, color: Colors.black),
-          label: '',
-          tooltip: 'Profile',
-        ),
+
       ],
       currentIndex: indexNum,
       unselectedItemColor: Colors.black,
@@ -63,13 +58,7 @@ class BottomNavbar extends StatelessWidget {
         if (index == 2) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => const UploadJob()),
-          );
-        }
-        if (index == 3) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => const ProfileConfiguration()),
+            MaterialPageRoute(builder: (_) => GitHubJobsPage()),
           );
         }
 

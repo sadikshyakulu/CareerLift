@@ -20,7 +20,7 @@ class _forgotPasswordState extends State<ForgotPassword>{
   void _forgotPassSubmit()async{
     try{
       await _auth.sendPasswordResetEmail(
-          email: _forgotPasswordController.text,);
+        email: _forgotPasswordController.text,);
       Navigator.pushReplacement(context,MaterialPageRoute(builder:(_) => SignIn()));
     }
     catch (error){
@@ -87,7 +87,7 @@ class _forgotPasswordState extends State<ForgotPassword>{
                                         child: Text("Enter Your Email address",style:GoogleFonts.poppins(color:Colors.white,fontSize: 20)),
                                       ),
                                       Padding(
-                                          padding: const EdgeInsets.only(top:220,left: 30),
+                                        padding: const EdgeInsets.only(top:220,left: 30),
                                         child: Container(
                                           width: size.width/1.2,
                                           child: TextFormField(
@@ -117,10 +117,10 @@ class _forgotPasswordState extends State<ForgotPassword>{
                                         child: Padding(
                                           padding: const EdgeInsets.only(top:300),
                                           child: ElevatedButton(
-                                              onPressed: (){
-                                                _forgotPassSubmit();
+                                            onPressed: (){
+                                              _forgotPassSubmit();
 
-                                              },
+                                            },
 
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor: Color(0xFF59C0CE), // Change the color here
@@ -129,7 +129,7 @@ class _forgotPasswordState extends State<ForgotPassword>{
 
                                               ),
                                             ),
-                                              child: Text('Reset',style:GoogleFonts.poppins(fontSize: 28, )),
+                                            child: Text('Reset',style:GoogleFonts.poppins(fontSize: 28, )),
                                           ),
                                         ),
                                       ),

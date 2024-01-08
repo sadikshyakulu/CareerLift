@@ -42,12 +42,12 @@ class _UploadJobState extends State<UploadJob> {
 
   Widget _textTitle({
     required String title
-}) {
+  }) {
     return Padding(
-        padding: const EdgeInsets.all(7.0),
-        child: Text(
-          title,
-        ),
+      padding: const EdgeInsets.all(7.0),
+      child: Text(
+        title,
+      ),
     );
   }
 
@@ -116,8 +116,8 @@ class _UploadJobState extends State<UploadJob> {
           'jobComments':[],
           'createdAt': Timestamp.now(),
           'name': name,
-          'userImage': userImage,
           'address': address,
+          'userImage': userImage,
           'applicants': 0,
         });
         _jobTitleController.clear();
@@ -126,6 +126,12 @@ class _UploadJobState extends State<UploadJob> {
           _jobCategoryController.text = "Select the category";
           _jobDeadlineController.text = "Select Job Deadline date";
         });
+        await Fluttertoast.showToast(
+          msg: 'Task is uploaded',
+          toastLength: Toast.LENGTH_LONG,
+          backgroundColor: Colors.black26,
+          fontSize: 24,
+        );
       } catch(error){
         setState(() {
           _isloading =false;
@@ -138,7 +144,7 @@ class _UploadJobState extends State<UploadJob> {
         setState(() {
           _isloading = false;
         });
-        }
+      }
     }
     else {
       print("Its not valid");
@@ -160,33 +166,26 @@ class _UploadJobState extends State<UploadJob> {
         deadlineDateTimeStamp = Timestamp.fromMicrosecondsSinceEpoch(
             pickedDate.microsecondsSinceEpoch);
       });
-
-      await Fluttertoast.showToast(
-        msg: 'Task is uploaded',
-        toastLength: Toast.LENGTH_LONG,
-        backgroundColor: Colors.black26,
-        fontSize: 24,
-      );
     }
   }
 
-void getData()async{
-    final DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection("Users").doc(FirebaseAuth.instance.currentUser!.uid)
-        .get();
-    setState(() {
-      name = userDoc.get("name");
-      userImage=userDoc.get("userImage");
-      address=userDoc.get("address");
-
-    });
-}
-
-@override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    getData();
-  }
+// void getData()async{
+//     final DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection("Users").doc(FirebaseAuth.instance.currentUser!.uid)
+//         .get();
+//     setState(() {
+//       name = userDoc.get("name");
+//       userImage=userDoc.get("userImage");
+//       address=userDoc.get("address");
+//
+//     });
+// }
+//
+// @override
+//   void initState() {
+//     // TODO: implement initState
+//     super.initState();
+//     getData();
+//   }
 
 
   @override
@@ -222,7 +221,7 @@ void getData()async{
                       ),
                     ),
                   ),
-              const SizedBox(height: 10,),
+                  const SizedBox(height: 10,),
                   const Divider(
                     thickness: 1,
                   ),
@@ -304,7 +303,7 @@ void getData()async{
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(13),
                         ),
-                          child: const Padding(
+                        child: const Padding(
                           padding: EdgeInsets.symmetric(vertical: 14),
                           child: Row(
                             mainAxisSize: MainAxisSize.min,

@@ -101,7 +101,7 @@ class _SignInState extends State<SignIn> {
                 obscurePassword = !obscurePassword;
               });
             },
-              child: Icon(
+            child: Icon(
               obscurePassword
                   ? Icons.visibility_off
                   : Icons.visibility,
@@ -200,9 +200,9 @@ class _SignInState extends State<SignIn> {
                               child: Container(
                                 padding: const EdgeInsets.all(15),
                                 decoration: BoxDecoration(
-                                    color: Color(0xFF1B5C58),
-                                    borderRadius: BorderRadius.circular(30),
-                                    boxShadow: [
+                                  color: Color(0xFF1B5C58),
+                                  borderRadius: BorderRadius.circular(30),
+                                  boxShadow: [
                                     BoxShadow(
                                       color: Colors.grey.withOpacity(0.5), // Shadow color
                                       spreadRadius: 5, // Spread radius

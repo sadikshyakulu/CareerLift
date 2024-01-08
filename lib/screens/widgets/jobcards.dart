@@ -29,7 +29,12 @@ class JobCards extends StatefulWidget {
         required this.recruitment,
         required this.email,
         required this.address,
-        required this.uploadedBy, required this.jid, required this.name, required this.jobDeadline});
+        required this.uploadedBy,
+        required this.jid,
+        required this.name,
+        required this.jobDeadline,
+      }
+      );
 
 
 
@@ -38,7 +43,7 @@ class JobCards extends StatefulWidget {
 }
 
 class _JobCardsState extends State<JobCards> {
-  
+
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   _deleteJob() {
@@ -56,20 +61,20 @@ class _JobCardsState extends State<JobCards> {
               onPressed: () async{
                 try{
                   if(widget.uploadedBy == _uid)
-                    {
-                      await FirebaseFirestore.instance.collection("Jobs")
-                          .doc(widget.jid)
-                          .delete();
-                      await Fluttertoast.showToast(
-                        msg:'Your post"${widget.jobTitle} "has been deleted',
-                        toastLength: Toast.LENGTH_LONG,
-                        backgroundColor: Colors.grey,
-                        fontSize: 20,
+                  {
+                    await FirebaseFirestore.instance.collection("Jobs")
+                        .doc(widget.jid)
+                        .delete();
+                    await Fluttertoast.showToast(
+                      msg:'Your post"${widget.jobTitle} "has been deleted',
+                      toastLength: Toast.LENGTH_LONG,
+                      backgroundColor: Colors.grey,
+                      fontSize: 20,
 
-                      );
-                      Navigator.canPop(context)?Navigator.pop(context):null;
+                    );
+                    Navigator.canPop(context)?Navigator.pop(context):null;
 
-                    }
+                  }
                   else{
                     GlobalMethods.showErrorDialog(error: "You cannot perform this action",ctx:ctx);
                   }
@@ -111,64 +116,64 @@ class _JobCardsState extends State<JobCards> {
   @override
   Widget build(BuildContext context) {
     return Card(
-      color:Colors.white,
-      elevation: 10,
-      child: ListTile(
-        onTap: (){
-          Navigator.pushReplacement(context,MaterialPageRoute(builder:(context)=>ApplyJob(uploadedBy: widget.uploadedBy, jid: widget.jid,)));
-        },
-        onLongPress: (){
-          _deleteJob();
-        },
-        contentPadding: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
-        leading: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            border: const Border(
-              right: BorderSide(width: 2),
-            )
+        color:Colors.white,
+        elevation: 10,
+        child: ListTile(
+          onTap: (){
+            Navigator.pushReplacement(context,MaterialPageRoute(builder:(context)=>ApplyJob(uploadedBy: widget.uploadedBy, jid: widget.jid,)));
+          },
+          onLongPress: (){
+            _deleteJob();
+          },
+          contentPadding: const EdgeInsets.symmetric(horizontal: 10,vertical: 10),
+          leading: Container(
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10),
+                border: const Border(
+                  right: BorderSide(width: 2),
+                )
+            ),
+            child: Image.network(widget.userImage),
           ),
-          child: Image.network(widget.userImage),
-        ),
-        title: Text(
-          widget.name,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.poppins(color:Colors.black,fontSize: 20,fontWeight: FontWeight.bold,decoration: TextDecoration.underline,),
+          title: Text(
+            widget.name,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: GoogleFonts.poppins(color:Colors.black,fontSize: 20,fontWeight: FontWeight.bold,decoration: TextDecoration.underline,),
 
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Text(
-              widget.jobTitle,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.poppins(color:Colors.black,fontSize: 20,fontWeight: FontWeight.bold,),
+          ),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                widget.jobTitle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.poppins(color:Colors.black,fontSize: 20,fontWeight: FontWeight.bold,),
 
 
-            ),
-            const SizedBox(height:5),
-            Text(
-              widget.jobDescription,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.poppins(color:Colors.black,fontSize: 20,fontWeight: FontWeight.bold,),
+              ),
+              const SizedBox(height:5),
+              Text(
+                widget.jobDescription,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.poppins(color:Colors.black,fontSize: 20,fontWeight: FontWeight.bold,),
 
 
-            ),
+              ),
 
-          ],
-        ),
-        trailing: const Icon(
-          Icons.keyboard_arrow_right,
-          size:30,
-          color: Colors.black,
-        ),
+            ],
+          ),
+          trailing: const Icon(
+            Icons.keyboard_arrow_right,
+            size:30,
+            color: Colors.black,
+          ),
 
-      )
+        )
 
     );
   }

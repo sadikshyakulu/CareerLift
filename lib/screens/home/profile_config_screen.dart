@@ -1,33 +1,55 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:app_jobdirect/providers/user_provider.dart';
 import 'package:app_jobdirect/screens/widgets/bottom_nav_bar.dart';
+import 'package:app_jobdirect/utility/user_utility.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
 class ProfileConfiguration extends StatefulWidget {
-  const ProfileConfiguration({Key? key});
+  String name = '';
+  String contact = '';
+  String address ='';
+  String userImage = '';
+  String password = '';
+  String email = '';
+  String education = '';
+
+  ProfileConfiguration({
+    Key? key,
+
+    required this.name,
+    required this.address,
+    required this.contact,
+    required this.userImage,
+    required this.password,
+    required this.email,
+    required this.education,
+    // Add other user data variables as needed
+  }) : super(key: key) {
+    print('ProfileConfiguration: name=$name, contact=$contact, address=$address, education=$education, email=$email, password=$password');
+  }
+
 
   @override
   State<ProfileConfiguration> createState() => _ProfileConfigurationState();
 }
 
+
 class _ProfileConfigurationState extends State<ProfileConfiguration> {
   final _profileKey = GlobalKey<FormState>();
   File? imageFile;
-
   bool obscurePassword = true;
 
-  String email =  '';
-  String password = '';
-  String name='';
-  String address='';
-  String education='';
-  String ocupation='';
   String err = '';
 
   // Use TextEditingController for each TextFormField
@@ -38,66 +60,115 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
   TextEditingController _educationController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
 
-  FocusNode _nameFocus=FocusNode();
-  FocusNode _contactFocus=FocusNode();
-  FocusNode _educationFocus=FocusNode();
-  FocusNode _addressFocus=FocusNode();
-  FocusNode _emailFocus=FocusNode();
-  FocusNode _passwordFocus=FocusNode();
+  FocusNode _nameFocus = FocusNode();
+  FocusNode _contactFocus = FocusNode();
+  FocusNode _educationFocus = FocusNode();
+  FocusNode _addressFocus = FocusNode();
+  FocusNode _emailFocus = FocusNode();
+  FocusNode _passwordFocus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+
+    print('contact: ${widget.contact}');
+    print('Email: ${widget.email}');
+    print('Address: ${widget.address}');
+    print('Education: ${widget.education}');
+    print('Password: ${widget.password}');
+
+    // Initialize controllers with widget values
+    _emailController.text = widget.email;
+    _nameController.text = widget.name;
+    _addressController.text = widget.address;
+    _contactController.text = widget.contact;
+    _educationController.text = widget.education;
+    _passwordController.text = widget.password;
+  }
+
+  void _saveChanges() async {
+    // Assuming you have access to FirebaseAuth and FirebaseFirestore instances
+    FirebaseAuth auth = FirebaseAuth.instance;
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    String userId = auth.currentUser?.uid ?? '';  // Get the current user's UID
+
+    String updatedName = _nameController.text;
+    String updatedContact = _contactController.text;
+    String updatedEducation = _educationController.text;
+    String updatedAddress = _addressController.text;
+    String updatedPassword = _passwordController.text;
+
+    await Fluttertoast.showToast(
+      msg: 'Profile is updated! You will be able to view the changes when '
+          'you refresh your app',
+      toastLength: Toast.LENGTH_LONG,
+      backgroundColor: Colors.black26,
+      fontSize: 24,
+    );
+
+    await UserUtility.updateDetails(
+      auth,
+      firestore,
+      userId,
+      updatedName,
+      updatedContact,
+      updatedEducation,
+      updatedAddress,
+      updatedPassword,
+    );
+
+    // Optionally, you can also fetch and update the local state if needed
+  }
 
   void _showImage(){
     showDialog(
-        context: context, builder: (context){
-          return AlertDialog(
-            title: Text('Please choose an option',style:GoogleFonts.inter(color:Colors.black,fontWeight:FontWeight.bold, ),),
-            content: Column(
-              mainAxisSize:MainAxisSize.min ,
-              children: [
-                InkWell(
-                  onTap: (){
-                    //create get from camera
-                    _getImageFromCamera();
-                  },
-                  child: Row(
-                    children: [
-                      const Padding(
-                          padding:EdgeInsets.all(7) ,
-                        child:
-                          Icon(
-                            Icons.camera_alt_sharp,
-                            color:Colors.black,
-
-                          )
-                      ),
-                      Text("Camera",style:GoogleFonts.inter(color:Colors.black,fontWeight:FontWeight.bold, ),),
-                    ],
+      context: context, builder: (context){
+      return AlertDialog(
+        title: Text('Please choose an option',style:GoogleFonts.inter(color:Colors.black,fontWeight:FontWeight.bold, ),),
+        content: Column(
+          mainAxisSize:MainAxisSize.min ,
+          children: [
+            InkWell(
+              onTap: (){
+                //create get from camera
+                _getImageFromCamera();
+              },
+              child: Row(
+                children: [
+                  const Padding(
+                      padding:EdgeInsets.all(7) ,
+                      child:
+                      Icon(
+                        Icons.camera_alt_sharp,
+                        color:Colors.black,
+                      )
                   ),
-                ),
-                InkWell(
-                  onTap: (){
-                    //create get from gallery
-                    _getImageFromGallery();
-                  },
-                  child: Row(
-                    children: [
-                      const Padding(
-                          padding:EdgeInsets.all(7) ,
-                          child:
-                          Icon(
-                            Icons.image_aspect_ratio_sharp,
-                            color:Colors.black,
-
-                          )
-                      ),
-                      Text("Gallery",style:GoogleFonts.inter(color:Colors.black,fontWeight:FontWeight.bold, ),),
-                    ],
-                  ),
-                )
-              ],
-
+                  Text("Camera",style:GoogleFonts.inter(color:Colors.black,fontWeight:FontWeight.bold, ),),
+                ],
+              ),
             ),
-
-          );
+            InkWell(
+              onTap: (){
+                //create get from gallery
+                _getImageFromGallery();
+              },
+              child: Row(
+                children: [
+                  const Padding(
+                      padding:EdgeInsets.all(7) ,
+                      child:
+                      Icon(
+                        Icons.image_aspect_ratio_sharp,
+                        color:Colors.black,
+                      )
+                  ),
+                  Text("Gallery",style:GoogleFonts.inter(color:Colors.black,fontWeight:FontWeight.bold, ),),
+                ],
+              ),
+            )
+          ],
+        ),
+      );
     },
     );
   }
@@ -136,10 +207,13 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
 
   @override
   Widget build(BuildContext context) {
+    UserProvider userProvider = Provider.of<UserProvider>(context);
+
     var size = MediaQuery.of(context).size;
     Widget buildTextFormField({
       required TextEditingController controller,
       required String labelText,
+      required bool enable,
       TextInputType keyboardType = TextInputType.text,
       TextInputAction textInputAction = TextInputAction.done,
       FocusNode? focusNode,
@@ -151,6 +225,7 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
         keyboardType: keyboardType,
         textInputAction: textInputAction,
         focusNode: focusNode,
+        enabled: enable,
         onEditingComplete: () {
           if (nextFocusNode != null) {
             FocusScope.of(context).requestFocus(nextFocusNode);
@@ -170,56 +245,10 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
         ),
       );
     }
-    Widget buildInputField2(String hintText, void Function(String) onChanged,{FocusNode? focusNode,
-        FocusNode? nextFocusNode,} ) {
-      return TextFormField(
-        validator: (val) {
-          if (val!.isEmpty) {
-            return 'Enter a $hintText';
-          } else if (val.length < 6 && hintText == 'Password') {
-            return 'Enter a password 6 characters or longer';
-          }
-          return null;
-        },
-        focusNode: focusNode,
-        onEditingComplete: () {
-          if (nextFocusNode != null) {
-            FocusScope.of(context).requestFocus(nextFocusNode);
-          } else {
-            // Hide keyboard if next focus node is not available
-            FocusScope.of(context).unfocus();
-          }
-        },
-        onChanged: onChanged,
-        obscureText: hintText == 'Password' ? obscurePassword : false,
-        decoration: InputDecoration(
-          fillColor: const Color(0xFFD9D9D9),
-          filled: true,
-          labelText: hintText, // Added labelText for clarity
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular( 10),
-          ),
-          suffixIcon: hintText == 'Password' ? GestureDetector(
-            onTap: () {
-              setState(() {
-                obscurePassword = !obscurePassword;
-              });
-            },
-            child: Icon(
-              obscurePassword
-                  ? Icons.visibility_off
-                  : Icons.visibility,
-              color: Colors.black,
-            ),
-          )
-              : null,
-        ),
-      );
-    }
 
     return Scaffold(
       backgroundColor: const Color(0xFF2D7F79),
-      bottomNavigationBar: BottomNavbar(indexNum: 3),
+
       appBar: AppBar(
         backgroundColor: const Color(0xFF2D7F79),
         title: Center(child: Text('Edit Profile',style:GoogleFonts.poppins(color:Colors.white,fontSize: 32,fontWeight: FontWeight.w600, ))),
@@ -256,9 +285,8 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
                               child: imageFile == null
                                   ? Image.asset(
                                 'assets/editPerson.png',
-                               fit: BoxFit.fill,
-                               )
-
+                                fit: BoxFit.fill,
+                              )
                                   : Image.file(
                                 imageFile!,
                                 fit: BoxFit.fill,
@@ -276,6 +304,7 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
               Center(child: Text("Profile picture",style:GoogleFonts.poppins(color:Colors.white,fontSize: 20,fontWeight: FontWeight.w600, ))),
               SizedBox(height: size.height/35),
               buildTextFormField(
+                enable: true,
                 controller: _nameController,
                 labelText: 'Name',
                 keyboardType: TextInputType.name,
@@ -289,18 +318,9 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
                   return null;
                 },
               ),
-              SizedBox(height:size.height/35),
-              buildInputField2('Email',focusNode: _emailFocus,
-                  nextFocusNode: _passwordFocus,  (val) {
-                setState(() => email = val);
-              }),
-              SizedBox(height: size.height/35),
-              buildInputField2('Password',focusNode: _passwordFocus,
-                  nextFocusNode: _contactFocus, (val) {
-                setState(() => password = val);
-              }),
               SizedBox(height: size.height/35),
               buildTextFormField(
+                enable: true,
                 controller: _contactController,
                 labelText: 'Phone Number',
                 keyboardType: TextInputType.phone,
@@ -316,13 +336,14 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
               ),
               SizedBox(height: size.height/35),
               buildTextFormField(
+                enable: true,
                 controller: _educationController,
                 labelText: 'Education',
                 keyboardType: TextInputType.text,
                 textInputAction: TextInputAction.next,
                 focusNode: _educationFocus,
                 nextFocusNode:_addressFocus,
-                  validator: (value) {
+                validator: (value) {
                   if (value!.isEmpty) {
                     return 'This field is missing';
                   }
@@ -331,6 +352,7 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
               ),
               SizedBox(height: size.height/35),
               buildTextFormField(
+                enable: true,
                 controller: _addressController,
                 labelText: 'Address',
                 keyboardType: TextInputType.text,
@@ -343,30 +365,54 @@ class _ProfileConfigurationState extends State<ProfileConfiguration> {
                   return null;
                 },
               ),
+              SizedBox(height: size.height/35),
+              buildTextFormField(
+                enable: false,
+                controller: _emailController,
+                labelText: 'Email',
+                keyboardType: TextInputType.phone,
+                textInputAction: TextInputAction.next,
+                focusNode: _emailFocus,
+                nextFocusNode: _passwordFocus ,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'This field is missing';
+                  }
+                  return null;
+                },
+              ),
+              SizedBox(height: size.height/35),
+              buildTextFormField(
+                enable: true,
+                controller: _passwordController,
+                labelText: 'Password',
+                keyboardType: TextInputType.phone,
+                textInputAction: TextInputAction.next,
+                focusNode: _passwordFocus,
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'This field is missing';
+                  }
+                  return null;
+                },
+              ),
               SizedBox(height: size.height/30),
               Center(
                 child: ElevatedButton(
-                  onPressed: (){},
-                  //     () async {
-                  //   // Handle sign-in logic
-                  //   // if (_formKey.currentState?.validate() ?? false) {
-                  //   //   setState(() => loading = true
-                  //   //   );
-                  //   //   // dynamic result = await _auth.signinWithEmailAndPassword(email, password);
-                  //   //   // if (result == null) {
-                  //   //   //   setState(() => err = 'Could not sign in with the credentials');
-                  //   //   //   loading = false;
-                  //   //   // }
-                  //   // }
-                  //
-                  // },
+                  onPressed: () {
+                    // Call a function to save changes
+                    _saveChanges();
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child:  Text('Save',style:GoogleFonts.inter(color:Colors.black,fontSize: 30,fontWeight:FontWeight.bold, ),),
+                  child: Text(
+                    'Save',
+                    style: GoogleFonts.inter(color: Colors.black, fontSize: 30, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ],

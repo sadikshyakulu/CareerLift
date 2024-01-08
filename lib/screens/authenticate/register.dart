@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:app_jobdirect/screens/authenticate/sign_in.dart';
 import 'package:app_jobdirect/screens/home/dashboard_screen.dart';
 import 'package:app_jobdirect/screens/shared/loading_animation.dart';
@@ -7,6 +9,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 
 
 
@@ -27,12 +31,14 @@ class _RegisterState extends State<Register> {
   //final AuthService _auth = AuthService();
   final _formKey = GlobalKey<FormState>();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  File? fileImage;
 
   final TextEditingController _nameController = TextEditingController(text: "");
   final TextEditingController _emailController = TextEditingController(text: "");
   final TextEditingController _passwordController = TextEditingController(text: "");
   final TextEditingController _contactController = TextEditingController(text: "");
   final TextEditingController _addressController = TextEditingController(text: "");
+  final TextEditingController _educationController = TextEditingController(text: "");
 
   bool loading = false;
   // text field state
@@ -42,6 +48,7 @@ class _RegisterState extends State<Register> {
   String name = '';
   String contact = '';
   String address ='';
+  String education='';
 
   bool obscurePassword = true; // State variable for password visibility
 
@@ -56,6 +63,7 @@ class _RegisterState extends State<Register> {
     _passwordController.dispose();
     _emailController.dispose();
     _nameController.dispose();
+    _educationController.dispose();
     super.dispose();
   }
   void  _submitRegisteration() async {
@@ -83,6 +91,7 @@ class _RegisterState extends State<Register> {
           'password': _passwordController.text,
           'contact': _contactController.text,
           'address': _addressController.text,
+          'education': _educationController.text,
           'createdAt': Timestamp.now(),
         });
         Navigator.pushReplacement(
@@ -104,6 +113,86 @@ class _RegisterState extends State<Register> {
     setState(() {
       loading = false;
     });
+  }
+
+  void _imageFromCamera() async
+  {
+    XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
+    _cropPickedImage(pickedFile!.path);
+    Navigator.pop(context);
+  }
+
+  void _imageFromGallery() async
+  {
+    XFile? pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    _cropPickedImage(pickedFile!.path);
+    Navigator.pop(context);
+  }
+
+  void _cropPickedImage(filePath) async
+  {
+    CroppedFile? croppedImage = await ImageCropper().cropImage(
+        sourcePath: filePath, maxHeight: 1080, maxWidth: 1080
+    );
+    if(croppedImage != null)
+    {
+      setState(() {
+        fileImage = File(croppedImage.path);
+      });
+    }
+  }
+
+  void _showImageDialog(){
+    showDialog(
+        context: context,
+        builder: (context)
+        {
+          return AlertDialog(
+            title: Text('What would you like to do'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                InkWell(
+                  onTap: (){
+                    _imageFromCamera();
+                  },
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(4.0),
+                        child: Icon(
+                          Icons.camera,
+                        ),
+                      ),
+                      Text(
+                          "Camera"
+                      ),
+                    ],
+                  ),
+                ),
+                InkWell(
+                  onTap: (){
+                    _imageFromGallery();
+                  },
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.all(4.0),
+                        child: Icon(
+                          Icons.photo_album,
+                        ),
+                      ),
+                      Text(
+                          "Gallery"
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
+        }
+    );
   }
 
   @override
@@ -163,79 +252,14 @@ class _RegisterState extends State<Register> {
                       //image logo
                       Stack(
                         children: [
-                          Container(
-                              height: 637,
-                              width: size.width,
-                              decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(100.0), // Adjust the radius as needed
-                                  bottomRight: Radius.circular(100.0), // Adjust the radius as needed
-                                ),
-                                //  can also set other properties of BoxDecoration here if needed
-                                gradient: LinearGradient(
-                                  colors: [Color(0xFF429690), Color(0xFF2A7C76)], //  list of colors
-                                  begin: Alignment.topCenter, // the starting point
-                                  end: Alignment.bottomCenter, // the ending point
-                                  stops: [0.0, 0.7], //  stops for each color
-                                  //  can also use 'stops' to define where each color should blend
-                                  // Stops, if not provided, distribute colors evenly across the gradient.
-                                ),
-                              ),
-                              child:Column(
-                                children: [
-                                  Stack(
-                                    children: [
-                                      Align(
-                                        alignment: Alignment.bottomLeft,
-                                        child: ClipRect(
-              
-                                          child: Image.asset(
-                                            "assets/Group 21_large.png",
-                                            fit: BoxFit.cover,
-                                          ),
-              
-                                        ),
-                                      ),
-              
-                                      Center(
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(top:300),
-                                          child: Text("Create your account",style:GoogleFonts.poppins(color:Colors.white,fontSize: 32,fontWeight: FontWeight.w600,)),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.only(top:10),
-                                        child: Center(
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(20),
-                                            child: Container(
-                                              height: 242,
-                                              width: 247,
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(20),
-                                                color: Colors.black.withOpacity(0.2), // Change the opacity level here (0.0 - 1.0)
-                                              ),
-                                              child: Image.asset(
-                                                "assets/logo.png",
-                                                fit: BoxFit.cover,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              )
-                          ),
                           Padding(
-                            padding: const EdgeInsets.only(top:384),
+                            padding: const EdgeInsets.only(top:40),
                             child: Center(
                               child: Container(
                                 padding: const EdgeInsets.all(15),
                                 decoration: BoxDecoration(
-                                    color: const Color(0xFF1B5C58),
-                                    borderRadius: BorderRadius.circular(30),
+                                  color: const Color(0xFF1B5C58),
+                                  borderRadius: BorderRadius.circular(30),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.grey.withOpacity(0.5), // Shadow color
@@ -245,80 +269,104 @@ class _RegisterState extends State<Register> {
                                     ),
                                   ],
                                 ),
-                                height: size.height *0.83,
+                                height: size.height *0.9,
                                 width: size.width *0.85 ,
-                                child: Form(
-                                  key: _formKey,
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const SizedBox(height: 3),
-                                      buildInputField('Name', (val) {
-                                        setState(() => name = val);
-                                      }, _nameController
-                                      ),
-                                      const SizedBox(height: 3),
-                                      buildInputField('Address', (val) {
-                                        setState(() => address = val);
-                                      }, _addressController
-                                      ),
-                                      const SizedBox(height: 3),
-                                      buildInputField('Contact', (val) {
-                                        setState(() => contact = val);
-                                      }, _contactController
-                                      ),
-                                      const SizedBox(height: 3),
-                                      buildInputField('Email', (val) {
-                                        setState(() => email = val);
-                                      }, _emailController
-                                      ),
-                                      const SizedBox(height: 3),
-                                      buildInputField('Password', (val) {
-                                        setState(() => password = val);
-                                      }, _passwordController
-                                      ),
-                                      const SizedBox(height: 3),
-                                      Center(
-                                        child: ElevatedButton(
-                                          onPressed: () async {
-                                            // Handle sign-in logic
-                                            _submitRegisteration();
-                                            // if (_formKey.currentState?.validate() ?? false) {
-                                            //   setState(() => loading = true);
-                                            //   // dynamic result = await _auth.registerWithEmailAndPassword(email, password);
-                                            //   // if (result == null) {
-                                            //   //   setState(() => err = 'Please set a valid email and password');
-                                            //   //   loading = false;
-                                            //   // }
-                                            // }
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(30),
-              
+                                child: SingleChildScrollView(
+                                  child: Form(
+                                    key: _formKey,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        const SizedBox(height: 3),
+                                        Center(
+                                          child: GestureDetector(
+                                            onTap: (){
+                                              _showImageDialog();
+                                            },
+                                            child: Padding(
+                                              padding: EdgeInsets.all(8.0),
+                                              child: Container(
+                                                width: size.width * 0.24,
+                                                height: size.height * 0.24,
+                                                decoration: BoxDecoration(
+                                                    border: Border.all(width: 1, color: Colors.cyanAccent),
+                                                    borderRadius: BorderRadius.circular(20)
+                                                ),
+                                                child: ClipRRect(
+                                                  borderRadius: BorderRadius.circular(16),
+                                                  child: fileImage == null
+                                                      ? Icon(Icons.camera, color: Colors.white, size: 30,)
+                                                      : Image.file(fileImage!, fit: BoxFit.fill,),
+                                                ),
+                                              ),
                                             ),
                                           ),
-                                          child: const Text('Sign Up'),
                                         ),
-                                      ),
-                                      SizedBox(
-                                        height: size.height/35,
-                                      ),
-                                      Center(
-                                        child: Text(
-                                          err,
-                                          style: const TextStyle(
-                                              color: Colors.red
+                                        const SizedBox(height: 3),
+                                        buildInputField('Name', (val) {
+                                          setState(() => name = val);
+                                        }, _nameController
+                                        ),
+                                        const SizedBox(height: 3),
+                                        buildInputField('Address', (val) {
+                                          setState(() => address = val);
+                                        }, _addressController
+                                        ),
+                                        const SizedBox(height: 3),
+                                        buildInputField('Contact', (val) {
+                                          setState(() => contact = val);
+                                        }, _contactController
+                                        ),
+                                        const SizedBox(height: 3),
+                                        buildInputField('Education', (val) {
+                                          setState(() => education = val);
+                                        }, _educationController
+                                        ),
+                                        const SizedBox(height: 3),
+                                        buildInputField('Email', (val) {
+                                          setState(() => email = val);
+                                        }, _emailController
+                                        ),
+                                        const SizedBox(height: 3),
+                                        buildInputField('Password', (val) {
+                                          setState(() => password = val);
+                                        }, _passwordController
+                                        ),
+                                        const SizedBox(height: 3),
+                                        Center(
+                                          child: ElevatedButton(
+                                            onPressed: () async {
+                                              // Handle sign-in logic
+                                              _submitRegisteration();
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(30),
+
+                                              ),
+                                            ),
+                                            child: const Text('Sign Up'),
                                           ),
                                         ),
-                                      )
-                                    ],
+                                        SizedBox(
+                                          height: size.height/35,
+                                        ),
+                                        Center(
+                                          child: Text(
+                                            err,
+                                            style: const TextStyle(
+                                                color: Colors.red
+                                            ),
+                                          ),
+                                        )
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-              
+
                         ],
                       ),
                       SizedBox(

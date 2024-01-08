@@ -1,4 +1,3 @@
-import 'package:app_jobdirect/screens/authenticate/sign_in.dart';
 import 'package:app_jobdirect/screens/authenticate/toggle_auth.dart';
 import 'package:app_jobdirect/screens/home/dashboard_screen.dart';
 import 'package:app_jobdirect/screens/shared/loading_animation.dart';
@@ -9,14 +8,6 @@ class Wrapper extends StatelessWidget {
   const Wrapper({super.key});
 
   @override
-  // Widget build(BuildContext context) {
-  //   return Scaffold(
-  //           body: Center(
-  //             child: ToggleAuth(),
-  //           ),
-  //         );
-  //
-  // }
 
   Widget build(BuildContext context) {
     return StreamBuilder(
