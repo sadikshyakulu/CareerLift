@@ -254,19 +254,6 @@ class _SignInState extends State<SignIn> {
                                           Center(
                                             child: ElevatedButton(
                                               onPressed: _signInSubmit,
-                                              //     () async {
-                                              //   // Handle sign-in logic
-                                              //   // if (_formKey.currentState?.validate() ?? false) {
-                                              //   //   setState(() => loading = true
-                                              //   //   );
-                                              //   //   // dynamic result = await _auth.signinWithEmailAndPassword(email, password);
-                                              //   //   // if (result == null) {
-                                              //   //   //   setState(() => err = 'Could not sign in with the credentials');
-                                              //   //   //   loading = false;
-                                              //   //   // }
-                                              //   // }
-                                              //
-                                              // },
                                               style: ElevatedButton.styleFrom(
                                                 shape: RoundedRectangleBorder(
                                                   borderRadius: BorderRadius.circular(30),

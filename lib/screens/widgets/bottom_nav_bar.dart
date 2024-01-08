@@ -25,11 +25,7 @@ class BottomNavbar extends StatelessWidget {
           label: 'Add Jobs',
           tooltip: 'Add Jobs',
         ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.cabin, size: 25, color: Colors.black),
-          label: 'GithubJobs',
-          tooltip: 'GithubJobs',
-        ),
+
 
       ],
       currentIndex: indexNum,
@@ -55,12 +51,7 @@ class BottomNavbar extends StatelessWidget {
             MaterialPageRoute(builder: (_) => const UploadJob()),
           );
         }
-        if (index == 2) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (_) => GitHubJobsPage()),
-          );
-        }
+
 
 
       },

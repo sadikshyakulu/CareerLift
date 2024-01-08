@@ -9,16 +9,19 @@ class GlobalMethods{
             title: const Row(
               children: [
                 Padding(
-                    padding: EdgeInsets.all(8.0),
+                    padding: EdgeInsets.all(4.0),
                     child: Icon(
                       Icons.logout,
-                      size: 35,
+                      size: 22,
                     ),
                 ),
                 Padding(
-                    padding: EdgeInsets.all(8.0),
+                    padding: EdgeInsets.all(4.0),
                     child: Text(
-                      "Shhh! There's an Error"
+                      "Shhh! There's an Error",
+                      style: TextStyle(
+                        fontSize: 10,
+                      ),
                     ),
                 )
               ],

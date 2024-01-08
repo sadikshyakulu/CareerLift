@@ -329,7 +329,7 @@ class _RegisterState extends State<Register> {
                                         }, _contactController
                                         ),
                                         const SizedBox(height: 3),
-                                        buildInputField('Education', (val) {
+                                        buildInputField('Education(Major)', (val) {
                                           setState(() => education = val);
                                         }, _educationController
                                         ),
