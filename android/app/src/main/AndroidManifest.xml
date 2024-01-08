@@ -10,7 +10,7 @@
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     <application
-        android:label="test_youtube_project"
+        android:label="Job Direct"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
