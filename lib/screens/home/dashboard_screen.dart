@@ -174,8 +174,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Container(
               width: MediaQuery.of(context).size.width / 1.4,
               decoration: BoxDecoration(
-                color: Colors.white, // Set the background color
-                borderRadius: BorderRadius.circular(10.0), // Set circular border radius
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(10.0),
               ),
               child: ListTile(
                 leading: const Icon(Icons.exit_to_app),
@@ -191,18 +191,23 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         actions: <Widget>[
                           TextButton(
                             onPressed: () {
-                              Navigator.of(context).pop(false); // Return false if user selects 'No'
+                              Navigator.of(context).pop(false);
                             },
                             child: const Text('No'),
                           ),
                           TextButton(
-                            onPressed: () {
-                              Navigator.push(
+                            onPressed: () async {
+                              Navigator.of(context).pop(true);
+                              // Logout functionality
+                              await _auth.signOut();
+
+                              // Navigate to the sign-in page and reset the app state
+                              Navigator.pushReplacement(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => ToggleAuth(),
                                 ),
-                              ); // Return true if user selects 'Yes'
+                              );
                             },
                             child: const Text('Yes'),
                           ),
@@ -220,6 +225,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
             ),
           ),
+
         ],
       ),
     );
