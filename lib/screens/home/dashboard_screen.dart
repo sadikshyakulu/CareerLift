@@ -26,6 +26,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   String? _jobCategoryFilter;
+  String _searchQuery = '';
   TextEditingController _jobCategoryController = TextEditingController(text: "Select the category");
   String? userEmail;
   String? userName;
@@ -311,6 +312,59 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
+  Widget _buildJobListView(Iterable<QueryDocumentSnapshot<Map<String, dynamic>>> jobs) {
+    if (_searchQuery.isNotEmpty) {
+      // Convert the Iterable to a List
+      final filteredJobs = jobs
+          .where((job) =>
+      job['jobTitle'].toLowerCase().contains(_searchQuery) ||
+          job['jobDescription'].toLowerCase().contains(_searchQuery))
+          .toList();
+
+      if (filteredJobs.isEmpty) {
+        return const Center(child: Text('No matching jobs'));
+      } else {
+        return ListView.builder(
+          itemCount: filteredJobs.length,
+          itemBuilder: (BuildContext context, int index) {
+            return JobCards(
+              jobTitle: filteredJobs[index]['jobTitle'],
+              jobDescription: filteredJobs[index]['jobDescription'],
+              jid: filteredJobs[index]['jid'],
+              email: filteredJobs[index]['email'],
+              name: filteredJobs[index]['name'],
+              address: filteredJobs[index]['address'],
+              recruitment: filteredJobs[index]['recruitment'],
+              uploadedBy: filteredJobs[index]['uploadedBy'],
+              userImage: filteredJobs[index]['userImage'],
+              jobDeadline: filteredJobs[index]['jobDeadline'],
+            );
+          },
+        );
+      }
+    } else {
+      // No search query, display all jobs
+      return ListView.builder(
+        itemCount: jobs.length,
+        itemBuilder: (BuildContext context, int index) {
+          return JobCards(
+            jobTitle: jobs.elementAt(index)['jobTitle'],
+            jobDescription: jobs.elementAt(index)['jobDescription'],
+            jid: jobs.elementAt(index)['jid'],
+            email: jobs.elementAt(index)['email'],
+            name: jobs.elementAt(index)['name'],
+            address: jobs.elementAt(index)['address'],
+            recruitment: jobs.elementAt(index)['recruitment'],
+            uploadedBy: jobs.elementAt(index)['uploadedBy'],
+            userImage: jobs.elementAt(index)['userImage'],
+            jobDeadline: jobs.elementAt(index)['jobDeadline'],
+          );
+        },
+      );
+    }
+  }
+
+
   @override
   void initState() {
     super.initState();
@@ -363,6 +417,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   children: [
                     Expanded(
                       child: TextField(
+                        onChanged: (value) {
+                          setState(() {
+                            _searchQuery = value.toLowerCase();
+                          });
+                        },
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: Colors.white,
@@ -375,6 +434,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                       ),
                     ),
+
                     SizedBox(width: 10), // Adjust the space between TextField and icon
                     IconButton(
                         onPressed: (){
@@ -411,6 +471,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     print('Error: ${snapshot.error}');
                     return Text('Error: ${snapshot.error}');
                   }
+
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Loading();
                   } else if (snapshot.connectionState == ConnectionState.active) {
@@ -424,43 +485,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         if (filteredJobs.isEmpty) {
                           return const Center(child: Text('No jobs for the selected category'));
                         } else {
-                          return ListView.builder(
-                            itemCount: filteredJobs.length,
-                            itemBuilder: (BuildContext context, int index) {
-                              return JobCards(
-                                jobTitle: filteredJobs.elementAt(index)['jobTitle'],
-                                jobDescription: filteredJobs.elementAt(index)['jobDescription'],
-                                jid: filteredJobs.elementAt(index)['jid'],
-                                email: filteredJobs.elementAt(index)['email'],
-                                name: filteredJobs.elementAt(index)['name'],
-                                address: filteredJobs.elementAt(index)['address'],
-                                recruitment: filteredJobs.elementAt(index)['recruitment'],
-                                uploadedBy: filteredJobs.elementAt(index)['uploadedBy'],
-                                userImage: filteredJobs.elementAt(index)['userImage'],
-                                jobDeadline: filteredJobs.elementAt(index)['jobDeadline'],
-                              );
-                            },
-                          );
+                          return _buildJobListView(filteredJobs);
                         }
                       } else {
                         // No filter, display all jobs
-                        return ListView.builder(
-                          itemCount: snapshot.data?.docs.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return JobCards(
-                              jobTitle: snapshot.data!.docs[index]['jobTitle'],
-                              jobDescription: snapshot.data!.docs[index]['jobDescription'],
-                              jid: snapshot.data?.docs[index]['jid'],
-                              email: snapshot.data?.docs[index]['email'],
-                              name: snapshot.data?.docs[index]['name'],
-                              address: snapshot.data?.docs[index]['address'],
-                              recruitment: snapshot.data?.docs[index]['recruitment'],
-                              uploadedBy: snapshot.data?.docs[index]['uploadedBy'],
-                              userImage: snapshot.data?.docs[index]['userImage'],
-                              jobDeadline: snapshot.data?.docs[index]['jobDeadline'],
-                            );
-                          },
-                        );
+                        return _buildJobListView(snapshot.data!.docs);
                       }
                     } else {
                       return const Center(
@@ -468,12 +497,91 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       );
                     }
                   }
+
                   return const Center(
                     child: Text("Found an Error"),
                   );
                 },
               ),
             ),
+
+
+            // Expanded(
+            //   child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+            //     stream: FirebaseFirestore.instance
+            //         .collection('Jobs')
+            //         .where('recruitment', isEqualTo: true)
+            //         .orderBy('createdAt', descending: false)
+            //         .snapshots(),
+            //     builder: (context, AsyncSnapshot snapshot) {
+            //       if (snapshot.hasError) {
+            //         print('Error: ${snapshot.error}');
+            //         return Text('Error: ${snapshot.error}');
+            //       }
+            //       if (snapshot.connectionState == ConnectionState.waiting) {
+            //         return const Loading();
+            //       } else if (snapshot.connectionState == ConnectionState.active) {
+            //         if (snapshot.hasData && snapshot.data!.docs.isNotEmpty) {
+            //           // Apply filter if it is set
+            //
+            //           if (_jobCategoryFilter != null && _jobCategoryFilter!.isNotEmpty) {
+            //             final filteredJobs = snapshot.data!.docs.where((job) =>
+            //             job['jobCategory'] == _jobCategoryFilter &&
+            //                 job['recruitment'] == true);
+            //
+            //             if (filteredJobs.isEmpty) {
+            //               return const Center(child: Text('No jobs for the selected category'));
+            //             } else {
+            //               return ListView.builder(
+            //                 itemCount: filteredJobs.length,
+            //                 itemBuilder: (BuildContext context, int index) {
+            //                   return JobCards(
+            //                     jobTitle: filteredJobs.elementAt(index)['jobTitle'],
+            //                     jobDescription: filteredJobs.elementAt(index)['jobDescription'],
+            //                     jid: filteredJobs.elementAt(index)['jid'],
+            //                     email: filteredJobs.elementAt(index)['email'],
+            //                     name: filteredJobs.elementAt(index)['name'],
+            //                     address: filteredJobs.elementAt(index)['address'],
+            //                     recruitment: filteredJobs.elementAt(index)['recruitment'],
+            //                     uploadedBy: filteredJobs.elementAt(index)['uploadedBy'],
+            //                     userImage: filteredJobs.elementAt(index)['userImage'],
+            //                     jobDeadline: filteredJobs.elementAt(index)['jobDeadline'],
+            //                   );
+            //                 },
+            //               );
+            //             }
+            //           } else {
+            //             // No filter, display all jobs
+            //             return ListView.builder(
+            //               itemCount: snapshot.data?.docs.length,
+            //               itemBuilder: (BuildContext context, int index) {
+            //                 return JobCards(
+            //                   jobTitle: snapshot.data!.docs[index]['jobTitle'],
+            //                   jobDescription: snapshot.data!.docs[index]['jobDescription'],
+            //                   jid: snapshot.data?.docs[index]['jid'],
+            //                   email: snapshot.data?.docs[index]['email'],
+            //                   name: snapshot.data?.docs[index]['name'],
+            //                   address: snapshot.data?.docs[index]['address'],
+            //                   recruitment: snapshot.data?.docs[index]['recruitment'],
+            //                   uploadedBy: snapshot.data?.docs[index]['uploadedBy'],
+            //                   userImage: snapshot.data?.docs[index]['userImage'],
+            //                   jobDeadline: snapshot.data?.docs[index]['jobDeadline'],
+            //                 );
+            //               },
+            //             );
+            //           }
+            //         } else {
+            //           return const Center(
+            //             child: Text('No jobs'),
+            //           );
+            //         }
+            //       }
+            //       return const Center(
+            //         child: Text("Found an Error"),
+            //       );
+            //     },
+            //   ),
+            // ),
           ],
         ),
         endDrawer: _buildSidebar(context),
