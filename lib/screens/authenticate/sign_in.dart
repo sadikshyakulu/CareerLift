@@ -3,6 +3,7 @@ import 'package:app_jobdirect/screens/authenticate/register.dart';
 import 'package:app_jobdirect/screens/home/dashboard_screen.dart';
 import 'package:app_jobdirect/screens/shared/loading_animation.dart';
 import 'package:app_jobdirect/services/global_methods.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -77,6 +78,13 @@ class _SignInState extends State<SignIn> with TickerProviderStateMixin {
           initializeUserStats(user.uid);
         }
       });
+      final currentUser = FirebaseAuth.instance.currentUser;
+
+      if (currentUser != null) {
+        FirebaseFirestore.instance.collection('users').doc(currentUser.uid).set({
+          'savedJobs': [],
+        }, SetOptions(merge: true));
+      }
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const DashboardScreen()),

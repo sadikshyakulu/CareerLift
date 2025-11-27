@@ -14,7 +14,8 @@ class ApplyJob extends StatefulWidget {
   final String uploadedBy;
   final String jid;
 
-  const ApplyJob({Key? key, required this.uploadedBy, required this.jid}) : super(key: key);
+  const ApplyJob({Key? key, required this.uploadedBy, required this.jid})
+      : super(key: key);
 
   @override
   State<ApplyJob> createState() => _ApplyJobState();
@@ -38,9 +39,12 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
-    _fade = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-    _scale = Tween<double>(begin: 0.9, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 1200));
+    _fade = Tween<double>(begin: 0.0, end: 1.0)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _scale = Tween<double>(begin: 0.9, end: 1.0).animate(
+        CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
     _controller.forward();
     getJobData();
   }
@@ -68,16 +72,20 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
       final job = jobDoc.data()! as Map<String, dynamic>;
 
       final userDoc = await FirebaseFirestore.instance
-          .collection('users')  // ← lowercase!
+          .collection('users') // ← lowercase!
           .doc(widget.uploadedBy)
           .get();
 
-      final user = userDoc.exists ? userDoc.data()! as Map<String, dynamic> : {'name': 'Unknown', 'userImage': ''};
+      final user = userDoc.exists
+          ? userDoc.data()! as Map<String, dynamic>
+          : {'name': 'Unknown', 'userImage': ''};
 
       final Timestamp? deadlineTs = job['jobDeadlineTimeStamp'] as Timestamp?;
-      final DateTime deadlineDateTime = deadlineTs?.toDate() ?? DateTime.now().subtract(const Duration(days: 1));
+      final DateTime deadlineDateTime = deadlineTs?.toDate() ??
+          DateTime.now().subtract(const Duration(days: 1));
 
-      final Timestamp createdAt = job['createdAt'] as Timestamp? ?? Timestamp.now();
+      final Timestamp createdAt =
+          job['createdAt'] as Timestamp? ?? Timestamp.now();
 
       setState(() {
         authorName = user['name'] ?? 'Unknown User';
@@ -104,33 +112,37 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
   }
 
   void applyForJob() async {
-    // Prevent multiple clicks
     if (_auth.currentUser == null) {
-      Fluttertoast.showToast(msg: "You must be logged in to apply");
+      Fluttertoast.showToast(msg: "Please login to apply");
       return;
     }
 
     final currentUser = _auth.currentUser!;
 
-    // 1. Open email
-    final Uri emailUri = Uri(
-      scheme: 'mailto',
-      path: emailCom,
-      query: 'subject=Application for $jobTitle&body=Dear $authorName,%0A%0AI am excited to apply for the $jobTitle position.%0A%0APlease find my resume attached.%0A%0ABest regards,%0A${currentUser.displayName ?? "Applicant"}',
+    // 1. PERFECT EMAIL — NO + SIGNS, PROPER LINE BREAKS
+    final subject = Uri.encodeComponent("Application for $jobTitle");
+    final body = Uri.encodeComponent(
+        "Dear $authorName,\n\n"
+            "I am excited to apply for the $jobTitle position.\n\n"
+            "Please find my resume attached.\n\n"
+            "Best regards,\n"
+            "${currentUser.displayName ?? "Applicant"}"
     );
-    if (await canLaunchUrlString(emailUri.toString())) {
-      await launchUrlString(emailUri.toString());
-    } else {
+
+    final emailUrl = "mailto:$emailCom?subject=$subject&body=$body";
+
+    try {
+      await launchUrlString(emailUrl);
+    } catch (e) {
       Fluttertoast.showToast(msg: "Could not open email app");
     }
 
-    // 2. Increment job applicants (existing)
+    // 2. REST OF YOUR CODE (applicants, save application, counter)
     await FirebaseFirestore.instance
         .collection('Jobs')
         .doc(widget.jid)
         .update({'applicants': FieldValue.increment(1)});
 
-    // 3. SAVE APPLICATION TO USER'S PROFILE (THIS IS THE NEW PART!)
     await FirebaseFirestore.instance
         .collection('users')
         .doc(currentUser.uid)
@@ -143,7 +155,6 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
       'appliedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
 
-    // 4. INCREMENT APPLICATIONS SENT COUNTER (for profile stats)
     await FirebaseFirestore.instance
         .collection('users')
         .doc(currentUser.uid)
@@ -151,13 +162,11 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
       'applicationsSent': FieldValue.increment(1),
     }, SetOptions(merge: true));
 
-    // 5. Success toast
     Fluttertoast.showToast(
-      msg: "Applied successfully! Check 'My Profile' → 'Applied'",
+      msg: "Applied! Check My Profile → Applied",
       backgroundColor: const Color(0xFF9D4EDD),
       textColor: Colors.white,
       gravity: ToastGravity.CENTER,
-      toastLength: Toast.LENGTH_LONG,
     );
   }
 
@@ -176,7 +185,9 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
     final commentText = _commentController.text.trim();
     if (commentText.length < 7) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Comment too short (min 7 chars)"), backgroundColor: Colors.red),
+        const SnackBar(
+            content: Text("Comment too short (min 7 chars)"),
+            backgroundColor: Colors.red),
       );
       return;
     }
@@ -192,7 +203,9 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
 
       if (!userDoc.exists) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("User profile not found"), backgroundColor: Colors.red),
+          const SnackBar(
+              content: Text("User profile not found"),
+              backgroundColor: Colors.red),
         );
         return;
       }
@@ -209,10 +222,7 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
       };
 
       // Use set() with merge + arrayUnion (100% safe)
-      await FirebaseFirestore.instance
-          .collection('Jobs')
-          .doc(widget.jid)
-          .set({
+      await FirebaseFirestore.instance.collection('Jobs').doc(widget.jid).set({
         'jobComments': FieldValue.arrayUnion([newComment])
       }, SetOptions(merge: true));
 
@@ -236,6 +246,7 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
       );
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -269,10 +280,14 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
                     child: Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(colors: [Color(0xFFA855F7), Color(0xFF9D4EDD)]),
+                        gradient: const LinearGradient(
+                            colors: [Color(0xFFA855F7), Color(0xFF9D4EDD)]),
                         borderRadius: BorderRadius.circular(32),
                         boxShadow: [
-                          BoxShadow(color: const Color(0xFF9D4EDD).withOpacity(0.6), blurRadius: 40, spreadRadius: 10),
+                          BoxShadow(
+                              color: const Color(0xFF9D4EDD).withOpacity(0.6),
+                              blurRadius: 40,
+                              spreadRadius: 10),
                         ],
                       ),
                       child: Row(
@@ -287,9 +302,17 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(jobTitle ?? "Loading...", style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white)),
-                                Text(authorName ?? "Unknown", style: GoogleFonts.poppins(fontSize: 18, color: Colors.white70)),
-                                Text(addressCom ?? "", style: GoogleFonts.poppins(fontSize: 14, color: Colors.white60)),
+                                Text(jobTitle ?? "Loading...",
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white)),
+                                Text(authorName ?? "Unknown",
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 18, color: Colors.white70)),
+                                Text(addressCom ?? "",
+                                    style: GoogleFonts.poppins(
+                                        fontSize: 14, color: Colors.white60)),
                               ],
                             ),
                           ),
@@ -305,14 +328,29 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _infoRow(Icons.work_outline, "Category", jobCategory ?? "N/A"),
-                        _infoRow(Icons.people, "Applicants", "$applicants applied"),
-                        _infoRow(Icons.calendar_today, "Posted", postedDate ?? "N/A"),
-                        _infoRow(Icons.event_busy, "Deadline", deadlineDate ?? "N/A", color: isDeadlineAvailable ? Colors.green : Colors.red),
+                        _infoRow(Icons.work_outline, "Category",
+                            jobCategory ?? "N/A"),
+                        _infoRow(
+                            Icons.people, "Applicants", "$applicants applied"),
+                        _infoRow(Icons.calendar_today, "Posted",
+                            postedDate ?? "N/A"),
+                        _infoRow(
+                            Icons.event_busy, "Deadline", deadlineDate ?? "N/A",
+                            color: isDeadlineAvailable
+                                ? Colors.green
+                                : Colors.red),
                         const SizedBox(height: 20),
-                        Text("Job Description", style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+                        Text("Job Description",
+                            style: GoogleFonts.poppins(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white)),
                         const SizedBox(height: 10),
-                        Text(jobDescription ?? "", style: GoogleFonts.poppins(fontSize: 16, color: Colors.white70, height: 1.6)),
+                        Text(jobDescription ?? "",
+                            style: GoogleFonts.poppins(
+                                fontSize: 16,
+                                color: Colors.white70,
+                                height: 1.6)),
                       ],
                     ),
                   ),
@@ -327,10 +365,13 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
                       child: ElevatedButton.icon(
                         onPressed: applyForJob,
                         icon: const Icon(Icons.send, size: 32),
-                        label: Text("Apply Now", style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold)),
+                        label: Text("Apply Now",
+                            style: GoogleFonts.poppins(
+                                fontSize: 24, fontWeight: FontWeight.bold)),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFD946EF),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(35)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(35)),
                           elevation: 20,
                           shadowColor: const Color(0xFFD946EF).withOpacity(0.8),
                         ),
@@ -339,8 +380,15 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
                   else
                     Container(
                       padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(color: Colors.red.withOpacity(0.3), borderRadius: BorderRadius.circular(20)),
-                      child: Center(child: Text("Application Deadline Passed", style: GoogleFonts.poppins(fontSize: 20, color: Colors.redAccent, fontWeight: FontWeight.bold))),
+                      decoration: BoxDecoration(
+                          color: Colors.red.withOpacity(0.3),
+                          borderRadius: BorderRadius.circular(20)),
+                      child: Center(
+                          child: Text("Application Deadline Passed",
+                              style: GoogleFonts.poppins(
+                                  fontSize: 20,
+                                  color: Colors.redAccent,
+                                  fontWeight: FontWeight.bold))),
                     ),
 
                   const SizedBox(height: 40),
@@ -352,10 +400,19 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text("Comments", style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.white)),
+                            Text("Comments",
+                                style: GoogleFonts.poppins(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white)),
                             IconButton(
-                              icon: Icon(_isCommenting ? Icons.close : Icons.add_comment, color: const Color(0xFFD946EF)),
-                              onPressed: () => setState(() => _isCommenting = !_isCommenting),
+                              icon: Icon(
+                                  _isCommenting
+                                      ? Icons.close
+                                      : Icons.add_comment,
+                                  color: const Color(0xFFD946EF)),
+                              onPressed: () => setState(
+                                  () => _isCommenting = !_isCommenting),
                             ),
                           ],
                         ),
@@ -371,16 +428,21 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
                                     style: const TextStyle(color: Colors.white),
                                     decoration: InputDecoration(
                                       hintText: "Add a comment...",
-                                      hintStyle: const TextStyle(color: Colors.white54),
+                                      hintStyle: const TextStyle(
+                                          color: Colors.white54),
                                       filled: true,
                                       fillColor: Colors.white.withOpacity(0.1),
-                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
+                                      border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          borderSide: BorderSide.none),
                                     ),
                                   ),
                                 ),
                                 const SizedBox(width: 10),
                                 IconButton(
-                                  icon: const Icon(Icons.send, color: Color(0xFFD946EF)),
+                                  icon: const Icon(Icons.send,
+                                      color: Color(0xFFD946EF)),
                                   onPressed: postComment,
                                 ),
                               ],
@@ -394,19 +456,24 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
                               .snapshots(),
                           builder: (context, snapshot) {
                             if (snapshot.hasError) {
-                              return const Text("Error loading comments", style: TextStyle(color: Colors.red));
+                              return const Text("Error loading comments",
+                                  style: TextStyle(color: Colors.red));
                             }
                             if (!snapshot.hasData) {
-                              return const Center(child: CircularProgressIndicator(color: Color(0xFFD946EF)));
+                              return const Center(
+                                  child: CircularProgressIndicator(
+                                      color: Color(0xFFD946EF)));
                             }
 
-                            final data = snapshot.data!.data() as Map<String, dynamic>?;
+                            final data =
+                                snapshot.data!.data() as Map<String, dynamic>?;
                             final List comments = data?['jobComments'] ?? [];
 
                             if (comments.isEmpty) {
                               return const Padding(
                                 padding: EdgeInsets.all(20),
-                                child: Text("No comments yet. Be the first!", style: TextStyle(color: Colors.white60)),
+                                child: Text("No comments yet. Be the first!",
+                                    style: TextStyle(color: Colors.white60)),
                               );
                             }
 
@@ -414,7 +481,8 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: comments.length,
-                              separatorBuilder: (_, __) => const Divider(color: Colors.white24, height: 20),
+                              separatorBuilder: (_, __) => const Divider(
+                                  color: Colors.white24, height: 20),
                               itemBuilder: (_, i) {
                                 final c = comments[i] as Map<String, dynamic>;
                                 return CommentWidget(
@@ -447,7 +515,12 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
         color: Colors.white.withOpacity(0.08),
         borderRadius: BorderRadius.circular(28),
         border: Border.all(color: Colors.white.withOpacity(0.15)),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.4), blurRadius: 30, offset: const Offset(0, 10))],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.black.withOpacity(0.4),
+              blurRadius: 30,
+              offset: const Offset(0, 10))
+        ],
       ),
       child: child,
     );
@@ -460,8 +533,12 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
         children: [
           Icon(icon, color: const Color(0xFFD946EF), size: 24),
           const SizedBox(width: 12),
-          Text("$label: ", style: GoogleFonts.poppins(fontSize: 16, color: Colors.white70)),
-          Expanded(child: Text(value, style: GoogleFonts.poppins(fontSize: 16, color: color ?? Colors.white))),
+          Text("$label: ",
+              style: GoogleFonts.poppins(fontSize: 16, color: Colors.white70)),
+          Expanded(
+              child: Text(value,
+                  style: GoogleFonts.poppins(
+                      fontSize: 16, color: color ?? Colors.white))),
         ],
       ),
     );

@@ -22,15 +22,6 @@ class _MyProfileScreenState extends State<MyProfileScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    // Run this once when user logs in (or in initState of MyProfile)
-    FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .set({
-      'jobsPosted': 0,
-      'applicationsSent': 0,
-      'savedJobs': [],
-    }, SetOptions(merge: true));
   }
 
   @override
@@ -43,7 +34,7 @@ class _MyProfileScreenState extends State<MyProfileScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0F0A2C),
-      bottomNavigationBar: const BottomNavbar(indexNum: 3), // Profile Tab
+      bottomNavigationBar: const BottomNavbar(indexNum: 3),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -141,8 +132,6 @@ class _MyProfileScreenState extends State<MyProfileScreen>
   }
 
   Widget _myJobsTab() {
-    if (user.uid.isEmpty) return _emptyState("Not logged in", Icons.error);
-
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('Jobs')
@@ -150,12 +139,6 @@ class _MyProfileScreenState extends State<MyProfileScreen>
           .orderBy('createdAt', descending: true)
           .snapshots(),
       builder: (context, snapshot) {
-        if (snapshot.hasError) {
-          return _emptyState("Error loading your jobs", Icons.wifi_off);
-        }
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator(color: Color(0xFFD946EF)));
-        }
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return _emptyState("No jobs posted yet", Icons.work_off);
         }
@@ -236,7 +219,7 @@ class _MyProfileScreenState extends State<MyProfileScreen>
       stream: FirebaseFirestore.instance.collection('users').doc(user.uid).snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return const Center(child: CircularProgressIndicator());
-        final saved = snapshot.data!['savedJobs'] as List<dynamic>? ?? [];
+        final saved = (snapshot.data!.data() as Map?)?['savedJobs'] as List<dynamic>? ?? [];
         if (saved.isEmpty) return _emptyState("No saved jobs", Icons.bookmark_border);
 
         return ListView.builder(
@@ -244,7 +227,7 @@ class _MyProfileScreenState extends State<MyProfileScreen>
           itemCount: saved.length,
           itemBuilder: (context, i) {
             return FutureBuilder<DocumentSnapshot>(
-              future: FirebaseFirestore.instance.collection('Jobs').doc(saved[i]).get(),
+              future: FirebaseFirestore.instance.collection('Jobs').doc(saved[i].toString()).get(),
               builder: (context, jobSnap) {
                 if (!jobSnap.hasData || !jobSnap.data!.exists) return const SizedBox();
                 var job = jobSnap.data!;
