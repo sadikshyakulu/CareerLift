@@ -1,9 +1,8 @@
-// Importing necessary packages and files
+// toggle_auth.dart
 import 'package:app_jobdirect/screens/authenticate/register.dart';
 import 'package:app_jobdirect/screens/authenticate/sign_in.dart';
 import 'package:flutter/material.dart';
 
-// Class responsible for toggling between sign-in and register screens
 class ToggleAuth extends StatefulWidget {
   const ToggleAuth({Key? key}) : super(key: key);
 
@@ -12,23 +11,28 @@ class ToggleAuth extends StatefulWidget {
 }
 
 class _ToggleAuthState extends State<ToggleAuth> {
-  // Variable to track whether to show sign-in or register screen
   bool showSignIn = true;
 
-  // Function to toggle between sign-in and register screens
   void toggleView() {
     setState(() => showSignIn = !showSignIn);
   }
 
   @override
   Widget build(BuildContext context) {
-    // Conditional rendering based on the value of showSignIn
-    if (showSignIn) {
-      // Display the sign-in screen if showSignIn is true
-      return SignIn(toggleView: toggleView);
-    } else {
-      // Display the register screen if showSignIn is false
-      return Register(toggleView: toggleView);
-    }
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 600),
+      transitionBuilder: (child, animation) {
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: showSignIn ? const Offset(1.0, 0.0) : const Offset(-1.0, 0.0),
+            end: const Offset(0.0, 0.0),
+          ).animate(CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
+          child: FadeTransition(opacity: animation, child: child),
+        );
+      },
+      child: showSignIn
+          ? SignIn(key: const ValueKey('SignIn'), onToggle: toggleView)
+          : Register(key: const ValueKey('Register'), onToggle: toggleView),
+    );
   }
 }

@@ -1,20 +1,51 @@
 import 'package:flutter/material.dart';
 
-// Loading Widget: A simple loading indicator to display when data is being fetched.
-
 class Loading extends StatelessWidget {
-  // Constructor for the Loading widget.
   const Loading({Key? key}) : super(key: key);
 
-  // Build method to create the widget UI.
   @override
   Widget build(BuildContext context) {
     return Container(
-      // Container to hold the loading indicator at the center of the screen.
+      color: const Color(0xFF0F0A2C),
       child: Center(
-        child: CircularProgressIndicator(
-          // CircularProgressIndicator to indicate that a process is ongoing.
-          color: Colors.teal,  // Color customization for the loading indicator.
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: const LinearGradient(
+                  colors: [Color(0xFFA855F7), Color(0xFFD946EF)],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0xFFD946EF).withOpacity(0.6),
+                    blurRadius: 30,
+                    spreadRadius: 10,
+                  ),
+                ],
+              ),
+              child: const Padding(
+                padding: EdgeInsets.all(12),
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                  strokeWidth: 5,
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              "Loading...",
+              style: TextStyle(
+                color: Colors.white70,
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 1.5,
+              ),
+            ),
+          ],
         ),
       ),
     );

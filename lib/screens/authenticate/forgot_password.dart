@@ -1,207 +1,204 @@
-// Import necessary packages and files
 import 'package:app_jobdirect/screens/authenticate/sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-// Define the ForgotPassword widget
 class ForgotPassword extends StatefulWidget {
+  const ForgotPassword({Key? key}) : super(key: key);
+
   @override
   State<ForgotPassword> createState() => _ForgotPasswordState();
 }
 
-// Define the state for the ForgotPassword widget
-class _ForgotPasswordState extends State<ForgotPassword> {
-  // Controller for the email input field
-  final TextEditingController _forgotPasswordController =
-  TextEditingController(text: "");
-  // Firebase authentication instance
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+class _ForgotPasswordState extends State<ForgotPassword>
+    with TickerProviderStateMixin {
+  final _emailController = TextEditingController();
+  final _auth = FirebaseAuth.instance;
+  bool _isLoading = false;
 
-  // Function to handle password reset submission
-  void _forgotPassSubmit() async {
+  late final AnimationController _controller;
+  late final Animation<double> _fade;
+  late final Animation<double> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 1200));
+    _fade = Tween<double>(begin: 0.0, end: 1.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
+    _slide = Tween<double>(begin: 80.0, end: 0.0).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _resetPassword() async {
+    if (_emailController.text.isEmpty || !_emailController.text.contains('@')) {
+      Fluttertoast.showToast(msg: "Please enter a valid email");
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
     try {
-      await _auth.sendPasswordResetEmail(email: _forgotPasswordController.text);
-      // Navigate to the Sign In screen after successful password reset email
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => SignIn()));
-    } catch (error) {
-      // Display an error toast if password reset fails
-      Fluttertoast.showToast(msg: error.toString());
+      await _auth.sendPasswordResetEmail(email: _emailController.text.trim());
+      Fluttertoast.showToast(
+        msg: "Password reset link sent! Check your email",
+        backgroundColor: const Color(0xFF9D4EDD),
+        textColor: Colors.white,
+        toastLength: Toast.LENGTH_LONG,
+      );
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SignIn()));
+    } catch (e) {
+      Fluttertoast.showToast(
+        msg: e.toString().contains("user-not-found")
+            ? "No user found with this email"
+            : "Error occurred",
+      );
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
-  // Build the ForgotPassword widget
   @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
-
     return Scaffold(
-      backgroundColor: Colors.blueGrey[100],
-      body: SizedBox(
-        width: size.width,
-        height: size.height,
-        child: SingleChildScrollView(
-          child: Center(
+      backgroundColor: const Color(0xFF0F0A2C),
+      body: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return Transform.translate(
+            offset: Offset(0, _slide.value),
+            child: Opacity(opacity: _fade.value, child: child),
+          );
+        },
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 28),
             child: Column(
               children: [
-                // Background container with gradient and images
-                Stack(
-                  children: [
-                    Container(
-                      height: size.height / 1.2,
-                      width: size.width,
-                      decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          bottomLeft: Radius.circular(100.0),
-                          bottomRight: Radius.circular(100.0),
-                        ),
-                        gradient: LinearGradient(
-                          colors: [Color(0xFF429690), Color(0xFF2A7C76)],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          stops: [0.0, 0.7],
-                        ),
+                const SizedBox(height: 40),
+
+                // Beautiful Illustration (This is where the magic happens)
+                Container(
+                  height: 280,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF9D4EDD).withOpacity(0.3),
+                        blurRadius: 40,
+                        spreadRadius: 10,
                       ),
-                      child: Column(
-                        children: [
-                          // Content for the password reset screen
-                          Stack(
-                            children: [
-                              // Logo and title
-                              Align(
-                                alignment: Alignment.topLeft,
-                                child: ClipRect(
-                                  child: Image.asset(
-                                    "assets/Group 21_large.png",
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                              Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(top: 41),
-                                  child: Text(
-                                    "Forgot Password",
-                                    style: GoogleFonts.poppins(
-                                      color: Colors.white,
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(top: 180, left: 40),
-                                child: Text(
-                                  "Enter Your Email address",
-                                  style: GoogleFonts.poppins(
-                                    color: Colors.white,
-                                    fontSize: 20,
-                                  ),
-                                ),
-                              ),
-                              // Email input field
-                              Padding(
-                                padding: const EdgeInsets.only(top: 220, left: 30),
-                                child: Container(
-                                  width: size.width / 1.2,
-                                  child: TextFormField(
-                                    controller: _forgotPasswordController,
-                                    decoration: InputDecoration(
-                                      filled: true,
-                                      fillColor: Colors.white,
-                                      enabledBorder: UnderlineInputBorder(
-                                        borderRadius: BorderRadius.circular(40),
-                                        borderSide: const BorderSide(color: Colors.white),
-                                      ),
-                                      focusedBorder: UnderlineInputBorder(
-                                        borderRadius: BorderRadius.circular(40),
-                                        borderSide: const BorderSide(color: Colors.white),
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(30),
-                                        borderSide: const BorderSide(color: Colors.white),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              // Reset button
-                              Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.only(top: 300),
-                                  child: ElevatedButton(
-                                    onPressed: () {
-                                      _forgotPassSubmit();
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Color(0xFF59C0CE),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(30),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      'Reset',
-                                      style: GoogleFonts.poppins(fontSize: 28),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              // Image at the bottom
-                              Padding(
-                                padding: const EdgeInsets.only(top: 360, left: 20),
-                                child: ClipRect(
-                                  child: Image.asset(
-                                    "assets/forgot_img.png",
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
+                    ],
+                  ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(30),
+                    child: Image.asset(
+                      "assets/forgot_password_illustration.png",
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          color: Colors.white.withOpacity(0.1),
+                          child: const Icon(Icons.lock_reset, size: 80, color: Colors.white70),
+                        );
+                      },
                     ),
-                    // Remember password and Sign In link
-                    Padding(
-                      padding: const EdgeInsets.only(top: 750),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            "Remember my Password",
-                            style: GoogleFonts.workSans(
-                              color: Colors.black,
-                              fontSize: 16,
-                            ),
+                  ),
+                ),
+
+                const SizedBox(height: 50),
+
+                Text(
+                  "Forgot Password?",
+                  style: GoogleFonts.poppins(fontSize: 34, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+
+                const SizedBox(height: 16),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Text(
+                    "Don't worry! It happens. Enter your email address and we'll send you a link to reset your password.",
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(fontSize: 16, color: Colors.white70),
+                  ),
+                ),
+
+                const SizedBox(height: 50),
+
+                // Glassmorphic Card
+                Container(
+                  padding: const EdgeInsets.all(32),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.08),
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(color: Colors.white.withOpacity(0.15)),
+                    boxShadow: [
+                      BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 30, offset: const Offset(0, 10)),
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        style: const TextStyle(color: Colors.white),
+                        decoration: InputDecoration(
+                          hintText: "Enter your email address",
+                          hintStyle: const TextStyle(color: Colors.white54),
+                          prefixIcon: const Icon(Icons.email_outlined, color: Color(0xFFD946EF)),
+                          filled: true,
+                          fillColor: Colors.white.withOpacity(0.1),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(20), borderSide: BorderSide.none),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20),
+                            borderSide: const BorderSide(color: Color(0xFFD946EF), width: 2),
                           ),
-                          Row(
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  // Navigate to the Sign In screen
-                                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => SignIn()));
-                                },
-                                icon: const Icon(Icons.person),
-                              ),
-                              Text(
-                                'Sign In',
-                                style: GoogleFonts.poppins(
-                                  color: Color(0xFF265A89),
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  decoration: TextDecoration.underline,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                        ),
                       ),
+
+                      const SizedBox(height: 40),
+
+                      SizedBox(
+                        width: double.infinity,
+                        height: 60,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : _resetPassword,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF9D4EDD),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                            elevation: 15,
+                            shadowColor: const Color(0xFF9D4EDD).withOpacity(0.7),
+                          ),
+                          child: _isLoading
+                              ? const SizedBox(width: 28, height: 28, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 3))
+                              : Text("Send Reset Link", style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.white)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 50),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("Remember your password? ", style: GoogleFonts.poppins(color: Colors.white70)),
+                    GestureDetector(
+                      onTap: () => Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const SignIn())),
+                      child: Text("Sign In", style: GoogleFonts.poppins(color: const Color(0xFFD946EF), fontWeight: FontWeight.bold, decoration: TextDecoration.underline)),
                     ),
                   ],
                 ),
+
+                const SizedBox(height: 40),
               ],
             ),
           ),

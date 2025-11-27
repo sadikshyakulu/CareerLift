@@ -1,204 +1,209 @@
-import 'package:app_jobdirect/screens/home/apply_job.dart';
-import 'package:app_jobdirect/services/global_methods.dart';
+// widgets/jobcards.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../home/apply_job.dart';
+import 'profile_image_widget.dart';
 
-// JobCards class represents a card widget for displaying job information.
 class JobCards extends StatefulWidget {
-  // Properties representing job details.
   final String jobTitle;
   final String jobDescription;
   final String jid;
+  final String uploadedBy;
   final String userImage;
   final String name;
-  final bool recruitment;
-  final String email;
   final String address;
-  final String uploadedBy;
+  final String email;
+  final bool recruitment;
   final String jobDeadline;
 
-  // Constructor for initializing JobCards with required properties.
   const JobCards({
+    Key? key,
     required this.jobTitle,
     required this.jobDescription,
-    required this.userImage,
-    required this.recruitment,
-    required this.email,
-    required this.address,
-    required this.uploadedBy,
     required this.jid,
+    required this.uploadedBy,
+    required this.userImage,
     required this.name,
+    required this.address,
+    required this.email,
+    required this.recruitment,
     required this.jobDeadline,
-  });
+  }) : super(key: key);
 
   @override
   State<JobCards> createState() => _JobCardsState();
 }
 
 class _JobCardsState extends State<JobCards> {
-  // Firebase authentication instance.
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  bool isSaved = false;
+  bool isLoading = false;
 
-  // Method to delete a job.
-  _deleteJob() {
-    // Retrieve the current user.
-    User? user = _auth.currentUser;
-    final _uid = user!.uid;
+  @override
+  void initState() {
+    super.initState();
+    _checkIfSaved();
+  }
 
-    // Show a confirmation dialog for deleting the job.
-    showDialog(
-      context: context,
-      builder: (ctx) {
-        return AlertDialog(
-          content: Container(
-            width: 50,
-            height: 50,
-            alignment: Alignment.center,
-            child: TextButton(
-              onPressed: () async {
-                try {
-                  // Check if the current user uploaded the job.
-                  if (widget.uploadedBy == _uid) {
-                    // Delete the job from Firestore.
-                    await FirebaseFirestore.instance
-                        .collection("Jobs")
-                        .doc(widget.jid)
-                        .delete();
+  void _checkIfSaved() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
 
-                    // Show a success toast.
-                    await Fluttertoast.showToast(
-                      msg:
-                      'Your post "${widget.jobTitle}" has been deleted',
-                      toastLength: Toast.LENGTH_LONG,
-                      backgroundColor: Colors.grey,
-                      fontSize: 20,
-                    );
+    final doc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid)
+        .get();
 
-                    // Close the dialog and pop the current screen.
-                    Navigator.canPop(context)
-                        ? Navigator.pop(context)
-                        : null;
-                  } else {
-                    // Show an error dialog if the current user is not the uploader.
-                    GlobalMethods.showErrorDialog(
-                      error: "You cannot perform this action",
-                      ctx: ctx,
-                    );
-                  }
-                } catch (error) {
-                  // Show an error dialog for any unexpected error.
-                  GlobalMethods.showErrorDialog(
-                    error: "This task cannot be deleted",
-                    ctx: ctx,
-                  );
-                } finally {}
-              },
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.delete_rounded, color: Colors.black),
-                    Text(
-                      "Delete",
-                      style: GoogleFonts.poppins(
-                        color: Colors.black,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        );
-      },
-    );
+    if (doc.exists) {
+      final savedJobs = doc['savedJobs'] as List<dynamic>? ?? [];
+      setState(() {
+        isSaved = savedJobs.contains(widget.jid);
+      });
+    }
+  }
+
+  void _toggleSave() async {
+    if (isLoading) return;
+    setState(() => isLoading = true);
+
+    final user = FirebaseAuth.instance.currentUser!;
+    final ref = FirebaseFirestore.instance.collection('users').doc(user.uid);
+
+    try {
+      if (isSaved) {
+        await ref.set({
+          'savedJobs': FieldValue.arrayRemove([widget.jid])
+        }, SetOptions(merge: true));
+        Fluttertoast.showToast(msg: "Removed from saved");
+      } else {
+        await ref.set({
+          'savedJobs': FieldValue.arrayUnion([widget.jid])
+        }, SetOptions(merge: true));
+        Fluttertoast.showToast(msg: "Job saved!");
+      }
+
+      setState(() {
+        isSaved = !isSaved;
+      });
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Error: Try again", backgroundColor: Colors.red);
+    } finally {
+      setState(() => isLoading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.white,
-      elevation: 10,
-      child: ListTile(
-        // Navigate to the ApplyJob screen when the card is tapped.
-        onTap: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ApplyJob(
-                uploadedBy: widget.uploadedBy,
-                jid: widget.jid,
-              ),
-            ),
-          );
-        },
-        // Display delete confirmation dialog on long press.
-        onLongPress: () {
-          _deleteJob();
-        },
-        contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-        leading: Container(
-          // Display the user image in a rounded container.
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            border: const Border(
-              right: BorderSide(width: 2),
-            ),
+    final currentUser = FirebaseAuth.instance.currentUser;
+    final isOwner = currentUser?.uid == widget.uploadedBy;
+
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ApplyJob(jid: widget.jid, uploadedBy: widget.uploadedBy),
           ),
-          child: Image.network(widget.userImage),
-        ),
-        title: Text(
-          // Display the job poster's name with styling.
-          widget.name,
-          maxLines: 2,
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.poppins(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            decoration: TextDecoration.underline,
+        );
+      },
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 20),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1E1B4B), Color(0xFF2A1B5E)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Text(
-              // Display the job title with styling.
-              widget.jobTitle,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.poppins(
-                color: Colors.indigoAccent,
-                fontSize: 20,
-              ),
-            ),
-            const SizedBox(height: 5),
-            Text(
-              // Display the job description with styling.
-              widget.jobDescription,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.poppins(
-                color: Colors.black,
-                fontSize: 8,
-                fontWeight: FontWeight.bold,
-              ),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: const Color(0xFFD946EF).withOpacity(0.3)),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFFD946EF).withOpacity(0.2),
+              blurRadius: 20,
+              spreadRadius: 2,
             ),
           ],
         ),
-        trailing: const Icon(
-          Icons.keyboard_arrow_right,
-          size: 30,
-          color: Colors.black,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                // Profile Image
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: const Color(0xFFD946EF), width: 3),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFFD946EF).withOpacity(0.5),
+                        blurRadius: 15,
+                        spreadRadius: 3,
+                      ),
+                    ],
+                  ),
+                  child: ClipOval(
+                    child: ProfileImageWidget(
+                      base64String: widget.userImage.isNotEmpty ? widget.userImage : null,
+                      radius: 30,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(widget.jobTitle, style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
+                      Text(widget.name.isEmpty ? "Anonymous" : widget.name, style: GoogleFonts.poppins(fontSize: 16, color: const Color(0xFFD946EF), fontWeight: FontWeight.w600)),
+                      Text(widget.address, style: GoogleFonts.poppins(fontSize: 13, color: Colors.white70)),
+                    ],
+                  ),
+                ),
+                Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: widget.recruitment ? Colors.green.withOpacity(0.3) : Colors.red.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        widget.recruitment ? "Open" : "Closed",
+                        style: TextStyle(color: widget.recruitment ? Colors.greenAccent : Colors.redAccent, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    if (currentUser != null && !isOwner)
+                      IconButton(
+                        icon: Icon(
+                          isSaved ? Icons.bookmark : Icons.bookmark_border,
+                          color: isSaved ? const Color(0xFFD946EF) : Colors.white70,
+                          size: 28,
+                        ),
+                        onPressed: isLoading ? null : _toggleSave,
+                      ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(widget.jobDescription, style: GoogleFonts.poppins(fontSize: 14, color: Colors.white70, height: 1.5), maxLines: 3, overflow: TextOverflow.ellipsis),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text("Deadline: ${widget.jobDeadline}", style: GoogleFonts.poppins(fontSize: 13, color: Colors.white60)),
+                const Icon(Icons.arrow_forward_ios, color: Color(0xFFD946EF), size: 18),
+              ],
+            ),
+          ],
         ),
       ),
     );
