@@ -10,7 +10,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 import 'package:uuid/uuid.dart';
-import '../widgets/profile_image_widget.dart'; // ← YOUR BASE64 WIDGET
+import '../widgets/profile_image_widget.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ApplyJob extends StatefulWidget {
   final String uploadedBy;
@@ -75,7 +76,7 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
       final job = jobDoc.data()! as Map<String, dynamic>;
 
       final userDoc = await FirebaseFirestore.instance
-          .collection('users') // ← lowercase!
+          .collection('users')
           .doc(widget.uploadedBy)
           .get();
 
@@ -125,13 +126,17 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
 
     // 1. PERFECT EMAIL — NO + SIGNS, PROPER LINE BREAKS
     final subject = Uri.encodeComponent("Application for $jobTitle");
-    final body = Uri.encodeComponent(
+    final bodyText =
         "Dear $authorName,\n\n"
-            "I am excited to apply for the $jobTitle position.\n\n"
-            "Please find my resume attached.\n\n"
-            "Best regards,\n"
-            "${currentUser.displayName ?? "Applicant"}"
-    );
+        "I hope you are doing well. I am writing to express my interest in the $jobTitle position. "
+        "I believe my skills and experience make me a strong fit for this role, and I would appreciate "
+        "the opportunity to discuss how I can contribute to your team.\n\n"
+        "Thank you for your time and consideration.\n\n"
+        "Best regards,\n"
+        "${currentUser.displayName ?? "Applicant"}";
+
+    String body = Uri.encodeQueryComponent(bodyText);
+    body = body.replaceAll("+", "%20");
 
     final emailUrl = "mailto:$emailCom?subject=$subject&body=$body";
 
@@ -166,24 +171,23 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
       'applicationsSent': FieldValue.increment(1),
     }, SetOptions(merge: true));
 
+    // Show toast before navigation
     Fluttertoast.showToast(
-      msg: "Applied! Check My Profile → Applied",
+      msg: "Applied Successfully!",
       backgroundColor: const Color(0xFF9D4EDD),
       textColor: Colors.white,
-      gravity: ToastGravity.CENTER,
     );
+
+    // Navigate to home page
+    if (mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const DashboardScreen()),
+            (route) => false,
+      );
+    }
   }
 
-  void incrementApplicants() async {
-    await FirebaseFirestore.instance.collection('Jobs').doc(widget.jid).update({
-      'applicants': FieldValue.increment(1),
-    });
-    Fluttertoast.showToast(
-      msg: "Application sent! Good luck!",
-      backgroundColor: const Color(0xFF9D4EDD),
-      textColor: Colors.white,
-    );
-  }
 
   void postComment() async {
     final commentText = _commentController.text.trim();
@@ -199,7 +203,6 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
     try {
       final currentUserId = _auth.currentUser!.uid;
 
-      // Get current user's name & image
       final userDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(currentUserId)
@@ -222,10 +225,9 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
         'userId': currentUserId,
         'name': userData['name'] ?? 'Anonymous',
         'userImageUrl': userData['userImage'] ?? '',
-        'time': DateTime.now().toIso8601String(), // ← THIS FIXES THE ERROR!
+        'time': DateTime.now().toIso8601String(),
       };
 
-      // Use set() with merge + arrayUnion (100% safe)
       await FirebaseFirestore.instance.collection('Jobs').doc(widget.jid).set({
         'jobComments': FieldValue.arrayUnion([newComment])
       }, SetOptions(merge: true));
@@ -253,6 +255,8 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final currentUser = _auth.currentUser;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -262,6 +266,33 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
           icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: () => Navigator.pop(context),
         ),
+        actions: [
+          // Display current user's profile image
+          if (currentUser != null)
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(currentUser.uid)
+                    .get(),
+                builder: (context, snapshot) {
+                  String currentUserImage = '';
+                  if (snapshot.hasData && snapshot.data!.exists) {
+                    final userData = snapshot.data!.data() as Map<String, dynamic>;
+                    currentUserImage = userData['userImage'] ?? '';
+                  }
+
+                  return Center(
+                    child: ProfileImageWidget(
+                      base64String: currentUserImage,
+                      radius: 20,
+                    ),
+                  );
+                },
+              ),
+            ),
+        ],
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -288,7 +319,7 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
                           BoxShadow(
                             color: Colors.black.withOpacity(0.3),
                             blurRadius: 20,
-                            offset: Offset(0, 10),
+                            offset: const Offset(0, 10),
                           ),
                         ],
                       ),
@@ -320,7 +351,6 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
                       ),
                       child: Row(
                         children: [
-                          // FIXED: Use ProfileImageWidget for Base64
                           ProfileImageWidget(
                             base64String: userImageBase64,
                             radius: 40,
@@ -440,7 +470,7 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
                                       : Icons.add_comment,
                                   color: const Color(0xFFD946EF)),
                               onPressed: () => setState(
-                                  () => _isCommenting = !_isCommenting),
+                                      () => _isCommenting = !_isCommenting),
                             ),
                           ],
                         ),
@@ -462,7 +492,7 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
                                       fillColor: Colors.white.withOpacity(0.1),
                                       border: OutlineInputBorder(
                                           borderRadius:
-                                              BorderRadius.circular(20),
+                                          BorderRadius.circular(20),
                                           borderSide: BorderSide.none),
                                     ),
                                   ),
@@ -494,7 +524,7 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
                             }
 
                             final data =
-                                snapshot.data!.data() as Map<String, dynamic>?;
+                            snapshot.data!.data() as Map<String, dynamic>?;
                             final List comments = data?['jobComments'] ?? [];
 
                             if (comments.isEmpty) {
