@@ -1,4 +1,5 @@
 // widgets/bottom_nav_bar.dart
+import 'package:app_jobdirect/screens/home/chat_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../home/dashboard_screen.dart';
@@ -44,11 +45,8 @@ class _BottomNavbarState extends State<BottomNavbar> {
         nextScreen = const DashboardScreen();
         break;
       case 1:
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Search coming soon!")),
-        );
-        setState(() => _currentIndex = widget.indexNum); // revert
-        return;
+        nextScreen = ChatScreen();
+        break;
       case 2:
         nextScreen = const UploadJob();
         break;
@@ -99,7 +97,7 @@ class _BottomNavbarState extends State<BottomNavbar> {
         unselectedLabelStyle: GoogleFonts.poppins(),
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Search"),
+          BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chat"),
           BottomNavigationBarItem(icon: Icon(Icons.add_circle_outline), label: "Post"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profile"),
         ],

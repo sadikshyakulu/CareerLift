@@ -85,7 +85,25 @@ class _DashboardScreenState extends State<DashboardScreen>
       });
     }
   }
-
+  Widget _buildCarouselItem(String path) {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 6),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF9D4EDD).withOpacity(0.5),
+            blurRadius: 40,
+            spreadRadius: 15,
+          ),
+        ],
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(28),
+        child: Image.asset(path, fit: BoxFit.cover),
+      ),
+    );
+  }
   @override
   void dispose() {
     _controller.dispose();
@@ -163,7 +181,6 @@ class _DashboardScreenState extends State<DashboardScreen>
         ],
       ),
 
-      // DRAWER (unchanged — already perfect)
       drawer: Drawer(
         backgroundColor: const Color(0xFF1E1B4B),
         child: Column(
@@ -247,58 +264,58 @@ class _DashboardScreenState extends State<DashboardScreen>
             Expanded(
               child: ListView(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
                 children: [
                   _drawerItem(Icons.person_outline_rounded, "My Profile",
-                      () async {
-                    Navigator.pop(context);
-                    final user = _auth.currentUser;
-                    if (user == null) return;
-                    final doc = await _firestore
-                        .collection('users')
-                        .doc(user.uid)
-                        .get();
-                    if (!doc.exists) return;
-                    final data = doc.data()!;
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ProfileConfiguration(
-                          name: data['name'] ?? '',
-                          contact: data['contact'] ?? '',
-                          address: data['address'] ?? '',
-                          education: data['education'] ?? '',
-                          email: data['email'] ?? user.email ?? '',
-                          userImage: data['userImage'] ?? '',
-                          userImageUrl: data['userImage'] ?? '',
-                          password: '',
-                        ),
-                      ),
-                    );
-                  }),
+                          () async {
+                        Navigator.pop(context);
+                        final user = _auth.currentUser;
+                        if (user == null) return;
+                        final doc = await _firestore
+                            .collection('users')
+                            .doc(user.uid)
+                            .get();
+                        if (!doc.exists) return;
+                        final data = doc.data()!;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ProfileConfiguration(
+                              name: data['name'] ?? '',
+                              contact: data['contact'] ?? '',
+                              address: data['address'] ?? '',
+                              education: data['education'] ?? '',
+                              email: data['email'] ?? user.email ?? '',
+                              userImage: data['userImage'] ?? '',
+                              userImageUrl: data['userImage'] ?? '',
+                              password: '',
+                            ),
+                          ),
+                        );
+                      }),
                   _drawerItem(Icons.description_outlined, "Terms & Conditions",
-                      () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => const TermsConditionsPage()));
-                  }),
+                          () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const TermsConditionsPage()));
+                      }),
                   _drawerItem(Icons.chat_bubble_outline, "Community Chat",
-                      () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (_) => ChatScreen()));
-                  }),
+                          () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => ChatScreen()));
+                      }),
                   const Divider(color: Colors.white24, height: 40),
                   _drawerItem(Icons.logout_rounded, "Logout", () async {
                     await _auth.signOut();
                     Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(builder: (_) => const ToggleAuth()),
-                      (route) => false,
+                          (route) => false,
                     );
                   }, color: Colors.redAccent),
                 ],
@@ -314,177 +331,150 @@ class _DashboardScreenState extends State<DashboardScreen>
             ),
           ],
         ),
-      ),
+      ),// Your existing drawer
 
       bottomNavigationBar: const BottomNavbar(indexNum: 0),
 
       body: FadeTransition(
         opacity: _fade,
-        child: Column(
-          children: [
-            // USER GREETING AT TOP
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-              child: Row(
-                children: [
-                  ProfileImageWidget(
-                    base64String: userImageBase64,
-                    radius: 28,
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Hello,",
-                        style: GoogleFonts.poppins(
-                            color: Colors.white, fontSize: 14),
+        child: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        ProfileImageWidget(base64String: userImageBase64, radius: 28),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Hello,", style: GoogleFonts.poppins(color: Colors.white, fontSize: 14)),
+                            Text(userName,
+                                style: GoogleFonts.poppins(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      onChanged: (val) => setState(() => _searchQuery = val.toLowerCase()),
+                      style: const TextStyle(color: Colors.white),
+                      decoration: InputDecoration(
+                        hintText: "Search jobs...",
+                        hintStyle: const TextStyle(color: Colors.white54),
+                        prefixIcon: const Icon(Icons.search, color: Color(0xFFD946EF)),
+                        filled: true,
+                        fillColor: Colors.white.withOpacity(0.1),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: BorderSide.none,
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(30),
+                          borderSide: const BorderSide(color: Color(0xFFD946EF), width: 2),
+                        ),
                       ),
-                      Text(
-                        userName,
-                        style: GoogleFonts.poppins(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ],
+                    ),
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
             ),
-
-            // Search Bar
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: TextField(
-                onChanged: (val) =>
-                    setState(() => _searchQuery = val.toLowerCase()),
-                style: const TextStyle(color: Colors.white),
-                decoration: InputDecoration(
-                  hintText: "Search jobs...",
-                  hintStyle: const TextStyle(color: Colors.white54),
-                  prefixIcon:
-                      const Icon(Icons.search, color: Color(0xFFD946EF)),
-                  filled: true,
-                  fillColor: Colors.white.withOpacity(0.1),
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide: BorderSide.none),
-                  focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(30),
-                      borderSide:
-                          const BorderSide(color: Color(0xFFD946EF), width: 2)),
+            SliverToBoxAdapter(
+              child: SizedBox(
+                height: 180,
+                child: PageView(
+                  controller: PageController(viewportFraction: 0.95),
+                  children: [
+                    _buildCarouselItem('assets/dashboardhero1.png'),
+                    _buildCarouselItem('assets/dashboardhero2.png'),
+                    _buildCarouselItem('assets/dashboardhero3.png'),
+                  ],
                 ),
               ),
             ),
 
-            // Hero Image
-            Container(
-              height: 150,
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(28),
-                  boxShadow: [
-                    BoxShadow(
-                        color: const Color(0xFF9D4EDD).withOpacity(0.5),
-                        blurRadius: 40,
-                        spreadRadius: 15)
-                  ]),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(28),
-                child:
-                    Image.asset("assets/dashboardhero1.png", fit: BoxFit.cover),
-              ),
-            ),
-            const SizedBox(height: 7),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  Text(
-                    "Available Jobs",
-                    style: GoogleFonts.poppins(
-                        fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
-                  const SizedBox(width: 12),
-                  if (_jobCategoryFilter != null)
-                    Flexible(
-                      child: Chip(
-                        backgroundColor: const Color(0xFFD946EF),
-                        label: Text(
-                          _jobCategoryFilter!,
-                          style: const TextStyle(color: Colors.white, fontSize: 13),
-                          overflow: TextOverflow.ellipsis, // ← THIS FIXES IT
-                          maxLines: 1,
-                        ),
-                        onDeleted: () => setState(() => _jobCategoryFilter = null),
-                      ),
+            // Available Jobs Title + Filter Chip
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                child: Row(
+                  children: [
+                    Text(
+                      "Available Jobs",
+                      style: GoogleFonts.poppins(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white),
                     ),
-                ],
+                    const SizedBox(width: 12),
+                    if (_jobCategoryFilter != null)
+                      Flexible(
+                        child: Chip(
+                          backgroundColor: const Color(0xFFD946EF),
+                          label: Text(
+                            _jobCategoryFilter!,
+                            style: const TextStyle(color: Colors.white, fontSize: 13),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          onDeleted: () => setState(() => _jobCategoryFilter = null),
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 10),
 
-            // JOB LIST
-            Expanded(
-              child: StreamBuilder<QuerySnapshot>(
-                stream: _firestore
-                    .collection('Jobs')
-                    .where('recruitment', isEqualTo: true)
-                    .orderBy('createdAt', descending: true)
-                    .snapshots(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting)
-                    return const Loading();
-                  if (snapshot.hasError ||
-                      !snapshot.hasData ||
-                      snapshot.data!.docs.isEmpty) {
-                    return Center(
-                        child: Text("No jobs available",
-                            style: GoogleFonts.poppins(color: Colors.white70)));
-                  }
+            // Job List
+            StreamBuilder<QuerySnapshot>(
+              stream: _firestore
+                  .collection('Jobs')
+                  .where('recruitment', isEqualTo: true)
+                  .orderBy('createdAt', descending: true)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return SliverToBoxAdapter(child: const Loading());
+                }
+                if (snapshot.hasError || !snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return SliverToBoxAdapter(
+                    child: Center(
+                      child: Text("No jobs available", style: GoogleFonts.poppins(color: Colors.white70)),
+                    ),
+                  );
+                }
 
-                  var jobs = snapshot.data!.docs;
+                var jobs = snapshot.data!.docs;
 
-                  if (_jobCategoryFilter != null) {
-                    jobs = jobs
-                        .where((j) => j['jobCategory'] == _jobCategoryFilter)
-                        .toList();
-                  }
-                  if (_searchQuery.isNotEmpty) {
-                    jobs = jobs
-                        .where((j) =>
-                            j['jobTitle']
-                                .toString()
-                                .toLowerCase()
-                                .contains(_searchQuery) ||
-                            j['jobDescription']
-                                .toString()
-                                .toLowerCase()
-                                .contains(_searchQuery))
-                        .toList();
-                  }
-                  if (jobs.isEmpty) {
-                    return Center(
-                        child: Text("No matching jobs",
-                            style: GoogleFonts.poppins(color: Colors.white70)));
-                  }
+                if (_jobCategoryFilter != null) {
+                  jobs = jobs.where((j) => j['jobCategory'] == _jobCategoryFilter).toList();
+                }
+                if (_searchQuery.isNotEmpty) {
+                  jobs = jobs.where((j) =>
+                  j['jobTitle'].toString().toLowerCase().contains(_searchQuery) ||
+                      j['jobDescription'].toString().toLowerCase().contains(_searchQuery)
+                  ).toList();
+                }
+                if (jobs.isEmpty) {
+                  return SliverToBoxAdapter(
+                    child: Center(
+                      child: Text("No matching jobs", style: GoogleFonts.poppins(color: Colors.white70)),
+                    ),
+                  );
+                }
 
-                  return ListView.builder(
-                    padding: const EdgeInsets.all(20),
-                    itemCount: jobs.length,
-                    itemBuilder: (_, i) {
+                return SliverList(
+                  delegate: SliverChildBuilderDelegate(
+                        (context, i) {
                       var job = jobs[i];
                       return InkWell(
                         onTap: () {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => ApplyJob(
-                                uploadedBy: job['uploadedBy'],
-                                jid: job['jid'],
-                              ),
+                              builder: (_) => ApplyJob(uploadedBy: job['uploadedBy'], jid: job['jid']),
                             ),
                           );
                         },
@@ -502,15 +492,17 @@ class _DashboardScreenState extends State<DashboardScreen>
                         ),
                       );
                     },
-                  );
-                },
-              ),
+                    childCount: jobs.length,
+                  ),
+                );
+              },
             ),
           ],
         ),
       ),
     );
   }
+
 
   Widget _drawerItem(IconData icon, String title, VoidCallback onTap,
       {Color? color}) {

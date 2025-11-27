@@ -51,6 +51,7 @@ dependencies:
   firebase_storage: ^12.4.10
   flutter_image_compress: ^2.1.0
   google_fonts:
+  intl: ^0.18.0
   curved_navigation_bar:
 
 

@@ -1,4 +1,6 @@
 // apply_job.dart
+import 'dart:convert';
+
 import 'package:app_jobdirect/screens/home/dashboard_screen.dart';
 import 'package:app_jobdirect/screens/widgets/comments_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -35,6 +37,7 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
   bool isDeadlineAvailable = false;
   bool _isCommenting = false;
   bool showComments = false;
+  String? coverImageBase64;
 
   @override
   void initState() {
@@ -90,6 +93,7 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
       setState(() {
         authorName = user['name'] ?? 'Unknown User';
         userImageBase64 = user['userImage'] ?? '';
+        coverImageBase64 = job['coverImage'] ?? '';
         jobTitle = job['jobTitle'] ?? 'No Title';
         jobDescription = job['jobDescription'] ?? 'No description';
         jobCategory = job['jobCategory'] ?? 'Other';
@@ -274,6 +278,30 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
+                  if (coverImageBase64 != null && coverImageBase64!.isNotEmpty)
+                    Container(
+                      height: 180,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.3),
+                            blurRadius: 20,
+                            offset: Offset(0, 10),
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.memory(
+                          base64Decode(coverImageBase64!),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 20),
+
                   // HERO HEADER CARD
                   ScaleTransition(
                     scale: _scale,

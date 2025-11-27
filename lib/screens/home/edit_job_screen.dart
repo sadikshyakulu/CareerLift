@@ -1,9 +1,13 @@
 // screens/home/edit_job_screen.dart
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart' show ImagePicker, XFile, ImageSource;
 
 class EditJobScreen extends StatefulWidget {
   final String jobId;
@@ -20,6 +24,9 @@ class _EditJobScreenState extends State<EditJobScreen> {
   late TextEditingController _titleController;
   late TextEditingController _descController;
   late bool _recruitment;
+  File? _coverImage;
+  String _coverImageBase64 = '';
+  final ImagePicker _picker = ImagePicker();
 
   @override
   void initState() {
@@ -28,7 +35,22 @@ class _EditJobScreenState extends State<EditJobScreen> {
     _descController =
         TextEditingController(text: widget.jobData['jobDescription']);
     _recruitment = widget.jobData['recruitment'] ?? true;
+    _coverImageBase64 = widget.jobData['coverImage'] ?? '';
   }
+
+  Future<void> _pickCoverImage() async {
+    final XFile? pickedFile = await _picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+    if (pickedFile != null) {
+      setState(() {
+        _coverImage = File(pickedFile.path);
+        _coverImageBase64 = base64Encode(_coverImage!.readAsBytesSync());
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -79,6 +101,45 @@ class _EditJobScreenState extends State<EditJobScreen> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
+            InkWell(
+              onTap: _pickCoverImage,
+              child: Container(
+                height: 180,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  color: Colors.white.withOpacity(0.1),
+                  border: Border.all(
+                    color: _coverImageBase64.isEmpty ? Colors.white24 : Color(0xFFD946EF),
+                    width: 2,
+                  ),
+                ),
+                child: _coverImage != null
+                    ? ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.file(
+                    _coverImage!,
+                    fit: BoxFit.cover,
+                  ),
+                )
+                    : _coverImageBase64.isNotEmpty
+                    ? ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: Image.memory(
+                    base64Decode(_coverImageBase64),
+                    fit: BoxFit.cover,
+                  ),
+                )
+                    : Center(
+                  child: Text(
+                    "Select Cover Image",
+                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
             TextField(
               controller: _titleController,
               style: const TextStyle(color: Colors.white),
@@ -123,7 +184,9 @@ class _EditJobScreenState extends State<EditJobScreen> {
                   'jobTitle': _titleController.text.trim(),
                   'jobDescription': _descController.text.trim(),
                   'recruitment': _recruitment,
+                  'coverImage': _coverImageBase64, // ← new Base64 field
                 });
+
                 Fluttertoast.showToast(
                     msg: "Job updated!",
                     backgroundColor: const Color(0xFF9D4EDD));
