@@ -13,6 +13,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'dart:convert';
 
+import '../../main.dart';
+
 class Register extends StatefulWidget {
   final VoidCallback? onToggle;  // Add this
 
@@ -170,6 +172,11 @@ class _RegisterState extends State<Register> with TickerProviderStateMixin {
           backgroundColor: Color(0xFF9D4EDD),
         ),
       );
+      FirebaseAuth.instance.authStateChanges().listen((user) {
+        if (user != null) {
+          initializeUserStats(user.uid);
+        }
+      });
 
       Navigator.pushReplacement(
         context,

@@ -73,18 +73,7 @@ class _SignInState extends State<SignIn> with TickerProviderStateMixin {
 
       if (!mounted) return;
 
-      FirebaseAuth.instance.authStateChanges().listen((user) {
-        if (user != null) {
-          initializeUserStats(user.uid);
-        }
-      });
-      final currentUser = FirebaseAuth.instance.currentUser;
 
-      if (currentUser != null) {
-        FirebaseFirestore.instance.collection('users').doc(currentUser.uid).set({
-          'savedJobs': [],
-        }, SetOptions(merge: true));
-      }
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const DashboardScreen()),

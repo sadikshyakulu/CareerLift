@@ -6,7 +6,8 @@ import 'package:google_fonts/google_fonts.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../widgets/profile_image_widget.dart';
 import '../widgets/jobcards.dart';
-import 'apply_job.dart'; // ← Make sure this exists
+import 'apply_job.dart';
+import 'edit_job_screen.dart'; // ← Make sure this exists
 
 class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({Key? key}) : super(key: key);
@@ -148,17 +149,25 @@ class _MyProfileScreenState extends State<MyProfileScreen>
           itemCount: snapshot.data!.docs.length,
           itemBuilder: (context, i) {
             var job = snapshot.data!.docs[i];
-            return JobCards(
-              jobTitle: job['jobTitle'],
-              jobDescription: job['jobDescription'],
-              jid: job.id,
-              uploadedBy: job['uploadedBy'],
-              userImage: job['userImage'] ?? '',
-              name: job['name'],
-              address: job['address'],
-              email: job['email'],
-              recruitment: job['recruitment'],
-              jobDeadline: job['jobDeadline'],
+            var jobData = job.data() as Map<String, dynamic>;
+
+            return Card(
+              color: const Color(0xFF1E1B4B),
+              margin: const EdgeInsets.only(bottom: 12),
+              child: ListTile(
+                leading: ProfileImageWidget(base64String: jobData['userImage'] ?? '', radius: 25),
+                title: Text(jobData['jobTitle'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                subtitle: Text("Tap to edit or delete", style: TextStyle(color: Colors.white60)),
+                trailing: Icon(Icons.edit, color: Color(0xFFD946EF)),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EditJobScreen(jobId: job.id, jobData: jobData),
+                    ),
+                  );
+                },
+              ),
             );
           },
         );

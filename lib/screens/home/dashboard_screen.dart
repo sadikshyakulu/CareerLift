@@ -13,6 +13,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../widgets/bottom_nav_bar.dart';
 import '../widgets/profile_image_widget.dart';
+import 'chat_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({Key? key}) : super(key: key);
@@ -283,6 +284,14 @@ class _DashboardScreenState extends State<DashboardScreen>
                         MaterialPageRoute(
                             builder: (_) => const TermsConditionsPage()));
                   }),
+                  _drawerItem(Icons.chat_bubble_outline, "Community Chat",
+                      () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => ChatScreen()));
+                  }),
                   const Divider(color: Colors.white24, height: 40),
                   _drawerItem(Icons.logout_rounded, "Logout", () async {
                     await _auth.signOut();
@@ -392,20 +401,25 @@ class _DashboardScreenState extends State<DashboardScreen>
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Available Jobs",
-                      style: GoogleFonts.poppins(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white)),
+                  Text(
+                    "Available Jobs",
+                    style: GoogleFonts.poppins(
+                        fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white),
+                  ),
+                  const SizedBox(width: 12),
                   if (_jobCategoryFilter != null)
-                    Chip(
-                      backgroundColor: const Color(0xFFD946EF),
-                      label: Text(_jobCategoryFilter!,
-                          style: const TextStyle(color: Colors.white)),
-                      onDeleted: () =>
-                          setState(() => _jobCategoryFilter = null),
+                    Flexible(
+                      child: Chip(
+                        backgroundColor: const Color(0xFFD946EF),
+                        label: Text(
+                          _jobCategoryFilter!,
+                          style: const TextStyle(color: Colors.white, fontSize: 13),
+                          overflow: TextOverflow.ellipsis, // ← THIS FIXES IT
+                          maxLines: 1,
+                        ),
+                        onDeleted: () => setState(() => _jobCategoryFilter = null),
+                      ),
                     ),
                 ],
               ),
