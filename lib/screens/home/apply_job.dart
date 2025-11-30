@@ -133,7 +133,7 @@ class _ApplyJobState extends State<ApplyJob> with TickerProviderStateMixin {
         "the opportunity to discuss how I can contribute to your team.\n\n"
         "Thank you for your time and consideration.\n\n"
         "Best regards,\n"
-        "${currentUser.displayName ?? "Applicant User"}";
+        "${currentUser.displayName ?? "Applicant"}";
 
     String body = Uri.encodeQueryComponent(bodyText);
     body = body.replaceAll("+", "%20");
